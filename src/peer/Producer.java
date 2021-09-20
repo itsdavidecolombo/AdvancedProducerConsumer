@@ -1,6 +1,7 @@
 package peer;
 
 import dashboard.IDashboard;
+import peer.exception.RunnableException;
 
 public class Producer extends BasePeer {
 

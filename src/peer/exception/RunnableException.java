@@ -1,4 +1,4 @@
-package peer;
+package peer.exception;
 
 public class RunnableException extends Exception {
 
@@ -15,11 +15,6 @@ public class RunnableException extends Exception {
     public RunnableException(String msgVar, ExcCause causeVar){
         msg = msgVar;
         cause = causeVar;
-    }
-
-    public RunnableException(String msgVar){
-        msg = msgVar;
-        cause = ExcCause.UNDEFINED;
     }
 
     @Override

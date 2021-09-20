@@ -2,7 +2,7 @@ import dashboard.Dashboard;
 import dashboard.IDashboard;
 import peer.BasePeer;
 import peer.Producer;
-import peer.RunnableException;
+import peer.exception.RunnableException;
 import peer.message.Message;
 import peer.message.MessageConstants;
 

@@ -2,6 +2,7 @@ package peer;
 
 
 import dashboard.IDashboard;
+import peer.exception.RunnableException;
 import peer.message.Message;
 import peer.message.MessageConstants;
 

@@ -1,5 +1,7 @@
 package peer;
 
+import peer.exception.RunnableException;
+
 /**
  * Abstract class that defined the interface for all the runnable instances in the project.
  *
@@ -59,10 +61,6 @@ public abstract class RunnableInstance implements Runnable {
             throw new RunnableException(msg, RunnableException.ExcCause.ILLEGAL_STATE_TRANSITION);
         }
         this.currentState = RunnableState.RUNNING;
-    }
-
-    public boolean isRunning(){
-        return currentState == RunnableState.RUNNING;
     }
 
     public boolean isStopped(){
