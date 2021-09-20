@@ -36,19 +36,19 @@ public class Producer extends BasePeer {
     }
 
     @Override
-    public void runInstance(){
+    public void runInstance() throws RunnableException {
         super.runInstance();
         this.producer.start();
     }
 
     @Override
-    public synchronized void resume(){
+    public synchronized void resume() throws RunnableException {
         super.resume();
         notify();       // wake up the producer thread when pausing
     }
 
     @Override
-    public void stop(){
+    public void stop() throws RunnableException {
         super.stop();
     }
 

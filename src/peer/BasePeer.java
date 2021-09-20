@@ -48,13 +48,13 @@ public abstract class BasePeer extends RunnableInstance {
         }
 
         @Override
-        public void runInstance(){
+        public void runInstance() throws RunnableException {
             super.runInstance();        // set the PeerNotifier runnable state to "RUNNING"
             threadNotifier.start();     // this causes the run method of "PeerNotifier" to be called
         }
 
         @Override
-        public synchronized void resume(){
+        public synchronized void resume() throws RunnableException {
             super.resume();             // set the PeerNotifier runnable state to "RUNNING"
             notify();                   // notify all the thread that are waiting on this object
         }
@@ -87,25 +87,25 @@ public abstract class BasePeer extends RunnableInstance {
     }
 
     @Override
-    public void runInstance(){
+    public void runInstance() throws RunnableException {
         super.runInstance();
         peerNotifier.runInstance();
     }
 
     @Override
-    public void pause(){
+    public void pause() throws RunnableException {
         super.pause();
         peerNotifier.pause();
     }
 
     @Override
-    public void resume(){
+    public void resume() throws RunnableException {
         super.resume();
         peerNotifier.resume();
     }
 
     @Override
-    public void stop(){
+    public void stop() throws RunnableException {
         super.stop();
         peerNotifier.stop();
     }
