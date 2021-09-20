@@ -15,14 +15,16 @@ public abstract class BasePeer extends RunnableInstance {
     private class PeerNotifier extends RunnableInstance {
 
         private final BasePeer peer;
+        private final Thread threadNotifier;
 
         PeerNotifier(BasePeer peerVar){
             peer = peerVar;
+            threadNotifier = new Thread(this, name);
         }
 
         public void run(){
             String msgContent;
-
+            Message msg;
             while(!peer.isStopped() && !super.isStopped()){
                 try {
                     synchronized(this){                         // checking if the thread should be paused
@@ -33,13 +35,10 @@ public abstract class BasePeer extends RunnableInstance {
                         }
                     }
 
-                    Thread.sleep(5000);                   // sleep
-                    msgContent = "Ping...";                     // message content
-                    peer.shipMessage(                           // shipping the message
-                            new Message(MessageConstants.PING_MSG,
-                                        msgContent,
-                                        name)
-                    );
+                    Thread.sleep(5000);       // sleep
+                    msgContent = "Ping...";         // message content
+                    msg = new Message(MessageConstants.PING_MSG, msgContent, name);
+                    peer.shipMessage(msg);          // shipping the message
                 } catch(InterruptedException e) {
                     e.printStackTrace();
                     // TODO: log event with a logger
@@ -65,10 +64,9 @@ public abstract class BasePeer extends RunnableInstance {
 
     private static int ID = 0;
 
-    protected final IDashboard dashboard;
-    protected final String name;
     protected final int id;
-    protected final Thread threadNotifier;
+    protected final String name;
+    protected final IDashboard dashboard;
     protected final PeerNotifier peerNotifier;
 
     public BasePeer(IDashboard dashVar, String nameVar){
@@ -76,17 +74,29 @@ public abstract class BasePeer extends RunnableInstance {
         name = nameVar;
         dashboard = dashVar;
         peerNotifier = new PeerNotifier(this);
-        threadNotifier = new Thread(peerNotifier, nameVar);
+        openConnection();   // open the connection directly from the constructor
     }
 
+    /**
+     * private method for opening the connection with the dashboard. This method is called automatically
+     * only once during the constructor invocation.
+     */
+    private void openConnection(){
+        dashboard.send(new Message(MessageConstants.SPAWN_MSG, "Spawn...", name));
+    }
+
+    /**
+     * Interface for shipping a message to the Dashboard
+     * @param msg
+     */
     public void shipMessage(Message msg){
         dashboard.send(msg);
     }
 
-    public String getName(){
-        return name;
-    }
-
+    /**
+     * Call to the superclass method and the same on the peerNotifier. The same goes for pause(), resume() and stop().
+     * @throws RunnableException
+     */
     @Override
     public void runInstance() throws RunnableException {
         super.runInstance();

@@ -5,7 +5,7 @@ import peer.exception.RunnableException;
 
 public class Producer extends BasePeer {
 
-    private Thread producer;
+    private final Thread producer;
 
     public Producer(IDashboard dashVar, String nameVar) {
         super(dashVar, nameVar);
@@ -38,14 +38,14 @@ public class Producer extends BasePeer {
 
     @Override
     public void runInstance() throws RunnableException {
-        super.runInstance();
-        this.producer.start();
+        super.runInstance();        // run the PeerNotifier thread
+        this.producer.start();      // run the producer thread
     }
 
     @Override
     public synchronized void resume() throws RunnableException {
-        super.resume();
-        notify();       // wake up the producer thread when pausing
+        super.resume();     // resume the PeerNotifier thread
+        notify();           // wake up the producer thread when pausing
     }
 
     @Override

@@ -3,19 +3,12 @@ import dashboard.IDashboard;
 import peer.BasePeer;
 import peer.Producer;
 import peer.exception.RunnableException;
-import peer.message.Message;
-import peer.message.MessageConstants;
 
 public class Demo {
     public static void main(String[] args){
         IDashboard dashboard = new Dashboard();
-
-        BasePeer c1 = new Producer(dashboard, "@DavideColombo");
-
-        c1.shipMessage(
-                new Message(MessageConstants.SPAWN_MSG,
-                            "Spwan...",
-                            c1.getName()));
+        BasePeer c1 = new Producer(dashboard,
+                "@DavideColombo");
 
         try {
             c1.runInstance();
