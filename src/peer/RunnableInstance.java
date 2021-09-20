@@ -7,7 +7,7 @@ package peer;
  */
 public abstract class RunnableInstance implements Runnable {
 
-    protected RunnableState currentState;
+    private RunnableState currentState;
 
     /**
      * The only thing that does the RunnableInstance constructor is initialize the currentState variable.
@@ -19,7 +19,7 @@ public abstract class RunnableInstance implements Runnable {
     /**
      * You can start a RunnableInstance from it's CREATED state by calling the start() method.
      */
-    public void start(){
+    public void runInstance(){
         if(currentState != RunnableState.CREATED)
             // TODO: throw Exception
             return;
@@ -40,7 +40,7 @@ public abstract class RunnableInstance implements Runnable {
     /**
      * You can pause a RunnableInstance from it's RUNNING state by calling the pause() method.
      */
-    public void pause(){
+    public synchronized void pause(){
         if(currentState != RunnableState.RUNNING)
             // TODO: throw Exception
             return;
@@ -50,10 +50,22 @@ public abstract class RunnableInstance implements Runnable {
     /**
      * You can resume a RunnableInstance from it's paused state by calling the resume() method.
      */
-    public void resume(){
+    public synchronized void resume(){
         if(currentState != RunnableState.PAUSED)
             // TODO: throw Exception
             return;
         this.currentState = RunnableState.RUNNING;
+    }
+
+    public boolean isRunning(){
+        return currentState == RunnableState.RUNNING;
+    }
+
+    public boolean isStopped(){
+        return currentState == RunnableState.STOPPED;
+    }
+
+    public boolean isPaused(){
+        return currentState == RunnableState.PAUSED;
     }
 }
