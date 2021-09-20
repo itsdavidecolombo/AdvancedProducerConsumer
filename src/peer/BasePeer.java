@@ -49,14 +49,14 @@ public abstract class BasePeer extends RunnableInstance {
 
         @Override
         public void runInstance() throws RunnableException {
-            super.runInstance();        // set the PeerNotifier runnable state to "RUNNING"
-            threadNotifier.start();     // this causes the run method of "PeerNotifier" to be called
+            super.runInstance();
+            threadNotifier.start();
         }
 
         @Override
         public synchronized void resume() throws RunnableException {
-            super.resume();             // set the PeerNotifier runnable state to "RUNNING"
-            notify();                   // notify all the thread that are waiting on this object
+            super.resume();
+            notify();
         }
 
     }
@@ -78,23 +78,32 @@ public abstract class BasePeer extends RunnableInstance {
     }
 
     /**
-     * private method for opening the connection with the dashboard. This method is called automatically
+     * Private method for opening the connection with the Dashboard. This method is called automatically
      * only once during the constructor invocation.
      */
     private void openConnection(){
-        dashboard.send(new Message(MessageConstants.SPAWN_MSG, "Spawn...", name));
+        dashboard.addMessage(new Message(MessageConstants.SPAWN_MSG, "Spawn...", name));
     }
 
     /**
-     * Interface for shipping a message to the Dashboard
+     * Private method for closing the connection with the Dashboard. This method is called automatically
+     * only once when the BasePeer's stop() method is called.
+     */
+    private void closeConnection(){
+        dashboard.addMessage(new Message(MessageConstants.KILL_MSG, "Kill...", name));
+    }
+
+    /**
+     * Interface for shipping a message to the Dashboard.
      * @param msg
      */
     public void shipMessage(Message msg){
-        dashboard.send(msg);
+        dashboard.addMessage(msg);
     }
 
     /**
-     * Call to the superclass method and the same on the peerNotifier. The same goes for pause(), resume() and stop().
+     * BasePeer class is mandated to override this method for reflecting the call to the "peerNotifier" instance.
+     * The same goes for pause(), resume() and stop() methods.
      * @throws RunnableException
      */
     @Override
@@ -119,5 +128,6 @@ public abstract class BasePeer extends RunnableInstance {
     public void stop() throws RunnableException {
         super.stop();
         peerNotifier.stop();
+        closeConnection();
     }
 }

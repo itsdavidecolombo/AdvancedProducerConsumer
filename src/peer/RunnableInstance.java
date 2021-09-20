@@ -3,23 +3,31 @@ package peer;
 import peer.exception.RunnableException;
 
 /**
- * Abstract class that defined the interface for all the runnable instances in the project.
+ * Abstract class that defined the interface for all the RunnableInstances in the project.
  *
- * A runnable instance has a state and the methods for managing that state.
+ * A RunnableInstance has a state and the methods for managing that state.
+ * A concrete subclass of RunnableInstance can be passed to a Thread object for creating the proper behaviour.
  */
 public abstract class RunnableInstance implements Runnable {
 
+    /**
+     * Enum that defines the allowed state in which a RunnableInstance can be found while is alive.
+     */
+    private enum RunnableState{
+        CREATED, RUNNING, PAUSED, STOPPED
+    }
+
     private RunnableState currentState;
 
-    /**
-     * The only thing that does the RunnableInstance constructor is initialize the currentState variable.
-     */
     public RunnableInstance(){
         currentState = RunnableState.CREATED;
     }
 
     /**
-     * You can start a RunnableInstance from it's CREATED state by calling the start() method.
+     * The purpose of this method is to check if the RunnableInstance upon which is invoked is in the CREATED state.
+     * If it is, then the state is changed into RUNNING.
+     * Override this method to effectively start a Thread associated to a RunnableInstance.
+     * @throws RunnableException
      */
     public void runInstance() throws RunnableException {
         if(currentState != RunnableState.CREATED) {
@@ -30,7 +38,11 @@ public abstract class RunnableInstance implements Runnable {
     }
 
     /**
-     * You can stop a RunnableInstance from it's RUNNING or PAUSED state by calling the stop() method.
+     * The purpose of this method is to check if the RunnableInstance upon which is invoked is in the RUNNING or
+     * PAUSED state.
+     * If it is, then the state is changed into STOPPED.
+     * A subclass of RunnableInstance is not mandated to override this method.
+     * @throws RunnableException
      */
     public void stop() throws RunnableException {
         if(currentState == RunnableState.CREATED ||
@@ -42,9 +54,12 @@ public abstract class RunnableInstance implements Runnable {
     }
 
     /**
-     * You can pause a RunnableInstance from it's RUNNING state by calling the pause() method.
+     * The purpose of this method is to check if the RunnableInstance upon which is invoked is in the RUNNING.
+     * If it is, then the state is changed into PAUSED.
+     * A subclass of RunnableInstance is not mandated to override this method.
+     * @throws RunnableException
      */
-    public synchronized void pause() throws RunnableException {
+    public void pause() throws RunnableException {
         if(currentState != RunnableState.RUNNING) {
             String msg = "Current state: " + currentState + ",\tDesired state: " + RunnableState.PAUSED;
             throw new RunnableException(msg, RunnableException.ExcCause.ILLEGAL_STATE_TRANSITION);
@@ -53,7 +68,11 @@ public abstract class RunnableInstance implements Runnable {
     }
 
     /**
-     * You can resume a RunnableInstance from it's paused state by calling the resume() method.
+     * The purpose of this method is to check if the RunnableInstance upon which is invoked is in the PAUSED.
+     * If it is, then the state is changed into RUNNING.
+     * A subclass of RunnableInstance must override this method and call the notify() method to awake the thread
+     * that was in the paused state.
+     * @throws RunnableException
      */
     public synchronized void resume() throws RunnableException {
         if(currentState != RunnableState.PAUSED){
@@ -63,10 +82,18 @@ public abstract class RunnableInstance implements Runnable {
         this.currentState = RunnableState.RUNNING;
     }
 
+    /**
+     * Method for checking if the RunnableInstance is in the STOPPED state
+     * @return
+     */
     public boolean isStopped(){
         return currentState == RunnableState.STOPPED;
     }
 
+    /**
+     * Method for checking if the RunnableInstance is in the PAUSED state
+     * @return
+     */
     public boolean isPaused(){
         return currentState == RunnableState.PAUSED;
     }

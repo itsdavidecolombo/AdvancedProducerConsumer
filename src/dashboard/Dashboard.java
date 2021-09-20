@@ -6,18 +6,30 @@ import peer.message.MessageConstants;
 public class Dashboard implements IDashboard {
 
     @Override
-    public void send(Message message) {
+    public void addMessage(Message message) {
         switch(message.getMessageCode()){
             case MessageConstants.PING_MSG:
-                System.out.println("<<< Dashboard received a PING from" + message.getMessageSender() + " >>>");
+                processPingMessage(message);
                 break;
             case MessageConstants.SPAWN_MSG:
-                System.out.println("<<< Dashboard received a SPAWN from" + message.getMessageSender() + " >>>");
+                processSpawnMessage(message);
                 break;
             case MessageConstants.KILL_MSG:
-                System.out.println("<<< Dashboard received a KILL from" + message.getMessageSender() + " >>>");
+                processKillMessage(message);
                 break;
         }
+    }
+
+    private void processPingMessage(Message message){
+        System.out.println("<<< Dashboard received a PING from " + message.getMessageSender() + " >>>");
+    }
+
+    private void processSpawnMessage(Message message){
+        System.out.println("<<< Dashboard received a SPAWN from " + message.getMessageSender() + " >>>");
+    }
+
+    private void processKillMessage(Message message){
+        System.out.println("<<< Dashboard received a KILL from " + message.getMessageSender() + " >>>");
     }
 
 }
