@@ -42,29 +42,34 @@ public class Producer extends BasePeer {
      * @throws RunnableException
      */
     @Override
-    public synchronized void runInstance() throws RunnableException {
-        while(!isConnected()){
-            try {
+    public synchronized void runInstance() {
+        try {
+
+            while(!isConnected()){      // wait loop until a connection is not established
                 wait();
-            } catch(InterruptedException e) {
-                System.out.println("runInstance() method in Producer has been interrupted: " + e);
             }
+
+            super.runInstance();        // run the PeerNotifier thread
+            this.producer.start();      // run the producer thread
+        } catch(InterruptedException e){
+            System.err.println("InterruptedException caught in Producer runInstance(): " + e.getMessage());
+        }catch(RunnableException e) {
+            System.err.println("RunnableException caught in Producer runInstance(): " + e.getMessage());
         }
-        super.runInstance();        // run the PeerNotifier thread
-        this.producer.start();      // run the producer thread
     }
 
     @Override
-    public synchronized void resume() throws RunnableException {
-        super.resume();     // resume the PeerNotifier thread
-        notify();           // wake up the producer thread when pausing
+    public synchronized void resume() {
+        try {
+            super.resume();     // resume the PeerNotifier thread
+            notify();           // wake up the producer thread when pausing
+        } catch(RunnableException e) {
+            System.err.println("RunnableException caught in Producer resume(): " + e.getMessage());
+            super.stop();
+        }
     }
 
     @Override
-    public void stop() throws RunnableException {
-        super.stop();
-    }
-
     public String toString(){
         return super.toString();
     }

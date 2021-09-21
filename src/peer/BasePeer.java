@@ -45,15 +45,25 @@ public abstract class BasePeer extends RunnableInstance {
         }
 
         @Override
-        public void runInstance() throws RunnableException {
-            super.runInstance();
-            threadNotifier.start();
+        public void runInstance() {
+            try {
+                super.runInstance();
+                threadNotifier.start();
+            } catch(RunnableException e) {
+                System.err.println("RunnableException caught in PeerNotifier: " + e.getMessage());
+            }
         }
 
         @Override
-        public synchronized void resume() throws RunnableException {
-            super.resume();
-            notify();
+        public synchronized void resume() {
+            try {
+                super.resume();
+                notify();
+            } catch(RunnableException e) {
+                System.err.println("RunnableException caught in PeerNotifier: " + e.getMessage());
+                System.err.println("Stopping PeerNotifier...");
+                peer.stop();    // stop the peer associated to this PeerNotifier
+            }
         }
 
     }
@@ -86,7 +96,7 @@ public abstract class BasePeer extends RunnableInstance {
             connVar.open();
             conn = connVar;
         } catch(ConnException e) {
-            System.out.println("ConnException caught: " + e.getMessage());
+            System.err.println("ConnException caught: " + e.getMessage());
         }
         notify();       // unlock a thread (if any) that is waiting for the connection to be opened!
     }
@@ -100,19 +110,19 @@ public abstract class BasePeer extends RunnableInstance {
         try {
             conn.close();
         } catch(ConnException e) {
-            System.out.println("ConnException caught: " + e.getMessage());
+            System.err.println("ConnException caught: " + e.getMessage());
         }
     }
 
     /**
-     * Interface for shipping a message through the Connection.
+     * Interface for shipping a Message through the Connection.
      * @param msgVar
      */
     public final void shipMessage(Message msgVar){
         try {
             conn.send(msgVar);
         } catch(ConnException e) {
-            System.out.println("ConnException caught: " + e.getMessage());
+            System.err.println("ConnException caught: " + e.getMessage());
         }
     }
 
@@ -148,7 +158,7 @@ public abstract class BasePeer extends RunnableInstance {
     }
 
     @Override
-    public void stop() throws RunnableException {
+    public void stop() {
         super.stop();
         peerNotifier.stop();
         closeConnection();

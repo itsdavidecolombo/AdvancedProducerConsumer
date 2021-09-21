@@ -36,18 +36,9 @@ public abstract class RunnableInstance implements Runnable {
     }
 
     /**
-     * The purpose of this method is to check if the RunnableInstance upon which is invoked is in the RUNNING or
-     * PAUSED state.
-     * If it is, then the state is changed into STOPPED.
-     * A subclass of RunnableInstance is not mandated to override this method.
-     * @throws RunnableException
+     * This method changes the current state of the RunnableInstance to STOPPED whatever the current state is.
      */
-    public void stop() throws RunnableException {
-        if(currentState == RunnableState.CREATED ||
-           currentState == RunnableState.STOPPED) {
-            String msg = "Current state: " + currentState + ",\tDesired state: " + RunnableState.STOPPED;
-            throw new RunnableException(msg, RunnableException.ExcCause.ILLEGAL_STATE_TRANSITION);
-        }
+    public synchronized void stop() {
         this.currentState = RunnableState.STOPPED;
     }
 
@@ -57,7 +48,7 @@ public abstract class RunnableInstance implements Runnable {
      * A subclass of RunnableInstance is not mandated to override this method.
      * @throws RunnableException
      */
-    public void pause() throws RunnableException {
+    public synchronized void pause() throws RunnableException {
         if(currentState != RunnableState.RUNNING) {
             String msg = "Current state: " + currentState + ",\tDesired state: " + RunnableState.PAUSED;
             throw new RunnableException(msg, RunnableException.ExcCause.ILLEGAL_STATE_TRANSITION);
