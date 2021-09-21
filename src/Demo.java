@@ -1,5 +1,6 @@
 import runnable.logger.Formatter;
 import runnable.logger.FormatterRepo;
+import runnable.logger.Logger;
 import runnable.peer.Connection;
 import pluggable.Dashboard;
 import pluggable.IPluggable;
@@ -13,25 +14,30 @@ public class Demo {
 
     public static void main(String[] args){
 
-        FormatterRepo formatterRepository = FormatterRepo.getInstance();
-        Formatter got;
+        Logger logger;
 
+        /* THIS IS A TEST FOR UNDERSTANDING IF THE FORMATTER AND FORMATTER REPOSITORY WORK PROPERLY
         try {
+            FormatterRepo formatterRepository = FormatterRepo.getInstance();
+            Formatter got;
+
             Thread.sleep(1000);
-            got = formatterRepository.getFormatterByName("myformatter");
+            got = formatterRepository.getFormatterByName("myformatter");    // exception test
             System.out.println(got.toString());
             Thread.sleep(1000);
-            got = formatterRepository.getDefaultFormatter();
+            got = formatterRepository.getDefaultFormatter();    // default formatter test
             System.out.println(got.toString());
 
-            formatterRepository.newFormatter("MyFormatter", "$", "#", "-");
+            formatterRepository.newFormatter("MyFormatter", "$", "#", "-"); // formatter creation test
             Thread.sleep(1000);
-            got = formatterRepository.getFormatterByName("MyFormatter");
+            got = formatterRepository.getFormatterByName("MyFormatter");    // formatter pull test
             System.out.println(got.toString());
 
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
+
+         */
 
         IPluggable dashboard = new Dashboard(); // the pluggable object
 
