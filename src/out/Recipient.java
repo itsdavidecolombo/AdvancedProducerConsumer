@@ -1,7 +1,12 @@
 package out;
 
-public abstract class Recipient {
+public interface Recipient {
 
-    public abstract void write(String msg);
+    /**
+     * This method is the common interface of a Recipient instance who's
+     * main purpose is to write to a recipient.
+     * @param msg
+     */
+    void write(String msg);
 
 }
