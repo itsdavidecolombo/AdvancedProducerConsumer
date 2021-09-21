@@ -73,8 +73,13 @@ public abstract class BasePeer extends RunnableInstance {
     }
 
     /**
-     * Private method for opening the connection with the Dashboard. This method is called automatically
-     * only once during the constructor invocation.
+     * Final and Synchronized method for opening the connection with a Pluggable object.
+     * This method catches exceptions from the Connection object if the user tries to open a connection
+     * that is already opened.
+     * If no exception is caught, the Connection object reference is stored in the conn instance variable.
+     *
+     * The notify() primitive method must be called to notify a possible Thread that is waiting for the
+     * connection to be opened.
      */
     public synchronized final void openConnection(Connection connVar){
         try {
@@ -87,8 +92,9 @@ public abstract class BasePeer extends RunnableInstance {
     }
 
     /**
-     * Private method for closing the connection with the Dashboard. This method is called automatically
-     * only once when the BasePeer's stop() method is called.
+     * Final and Synchronized method for closing a connection with a Pluggable object.
+     * This method catches exceptions from the Connection object if the user tries to close a connection
+     * without opening it before.
      */
     public final void closeConnection(){
         try {
@@ -99,7 +105,7 @@ public abstract class BasePeer extends RunnableInstance {
     }
 
     /**
-     * Interface for shipping a message to the Dashboard.
+     * Interface for shipping a message through the Connection.
      * @param msgVar
      */
     public final void shipMessage(Message msgVar){

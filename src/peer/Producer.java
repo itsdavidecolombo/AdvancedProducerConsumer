@@ -33,12 +33,18 @@ public class Producer extends BasePeer {
         System.out.println("<<< Producer " + toString() + " is stopped >>>");
     }
 
+    /**
+     * This method is qualified as synchronized because the thread that calls this method can be blocked
+     * if the connection is not opened.
+     *
+     * The caller thread is left in wait state until another thread opens the connection on this Peer instance
+     * and notifies that a connection has been opened.
+     * @throws RunnableException
+     */
     @Override
     public synchronized void runInstance() throws RunnableException {
         while(!isConnected()){
             try {
-                System.out.println("!!! " + Thread.currentThread().getName() + " is waiting " +
-                        "for the connection on " + toString() + " to be opened !!! ");
                 wait();
             } catch(InterruptedException e) {
                 System.out.println("runInstance() method in Producer has been interrupted: " + e);
