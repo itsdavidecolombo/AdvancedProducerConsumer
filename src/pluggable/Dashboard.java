@@ -1,9 +1,7 @@
 package pluggable;
 
-import peer.ConnException;
-import peer.Connection;
-import peer.message.Message;
-import peer.message.MessageConstants;
+import runnable.peer.Connection;
+import runnable.peer.Message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,7 @@ public class Dashboard implements IPluggable {
      */
     @Override
     public void pullMessage(Message msgVar) {
-        if(MessageConstants.PING_MSG.equals(msgVar.getMessageCode())) {
+        if(Message.PING_MSG.equals(msgVar.getMessageCode())) {
             processPingMessage(msgVar);
         }
     }

@@ -1,4 +1,4 @@
-package peer;
+package runnable.peer;
 
 public class ConnException extends Exception {
 

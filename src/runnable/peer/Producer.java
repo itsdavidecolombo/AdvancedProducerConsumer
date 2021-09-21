@@ -1,4 +1,6 @@
-package peer;
+package runnable.peer;
+
+import runnable.RunnableException;
 
 public class Producer extends BasePeer {
 
@@ -39,16 +41,13 @@ public class Producer extends BasePeer {
      *
      * The caller thread is left in wait state until another thread opens the connection on this Peer instance
      * and notifies that a connection has been opened.
-     * @throws RunnableException
      */
     @Override
     public synchronized void runInstance() {
         try {
-
             while(!isConnected()){      // wait loop until a connection is not established
                 wait();
             }
-
             super.runInstance();        // run the PeerNotifier thread
             this.producer.start();      // run the producer thread
         } catch(InterruptedException e){

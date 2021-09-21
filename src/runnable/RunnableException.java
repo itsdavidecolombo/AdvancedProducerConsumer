@@ -1,4 +1,4 @@
-package peer;
+package runnable;
 
 public class RunnableException extends Exception {
 

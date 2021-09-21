@@ -1,6 +1,5 @@
-package peer;
+package runnable.peer;
 
-import peer.message.Message;
 import pluggable.IPluggable;
 
 public class Connection {

@@ -1,4 +1,4 @@
-package peer;
+package runnable;
 
 /**
  * Abstract class that defined the interface for all the RunnableInstances in the project.

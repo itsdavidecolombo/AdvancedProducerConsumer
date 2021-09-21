@@ -1,15 +1,37 @@
-import peer.Connection;
+import runnable.logger.Formatter;
+import runnable.logger.FormatterRepo;
+import runnable.peer.Connection;
 import pluggable.Dashboard;
 import pluggable.IPluggable;
-import peer.BasePeer;
-import peer.Producer;
-import peer.RunnableException;
+import runnable.peer.BasePeer;
+import runnable.peer.Producer;
+import runnable.RunnableException;
 
 import java.util.Random;
 
 public class Demo {
 
     public static void main(String[] args){
+
+        FormatterRepo formatterRepository = FormatterRepo.getInstance();
+        Formatter got;
+
+        try {
+            Thread.sleep(1000);
+            got = formatterRepository.getFormatterByName("myformatter");
+            System.out.println(got.toString());
+            Thread.sleep(1000);
+            got = formatterRepository.getDefaultFormatter();
+            System.out.println(got.toString());
+
+            formatterRepository.newFormatter("MyFormatter", "$", "#", "-");
+            Thread.sleep(1000);
+            got = formatterRepository.getFormatterByName("MyFormatter");
+            System.out.println(got.toString());
+
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
 
         IPluggable dashboard = new Dashboard(); // the pluggable object
 

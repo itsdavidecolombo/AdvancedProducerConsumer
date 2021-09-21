@@ -1,7 +1,7 @@
 package pluggable;
 
-import peer.Connection;
-import peer.message.Message;
+import runnable.peer.Connection;
+import runnable.peer.Message;
 
 public interface IPluggable {
 

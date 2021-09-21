@@ -1,7 +1,7 @@
-package peer;
+package runnable.peer;
 
-import peer.message.Message;
-import peer.message.MessageConstants;
+import runnable.RunnableException;
+import runnable.RunnableInstance;
 
 public abstract class BasePeer extends RunnableInstance {
 
@@ -34,11 +34,11 @@ public abstract class BasePeer extends RunnableInstance {
 
                     Thread.sleep(5000);       // sleep
                     msgContent = "Ping...";         // message content
-                    msg = new Message(MessageConstants.PING_MSG, msgContent, name);
+                    msg = new Message(Message.PING_MSG, msgContent, name);
                     peer.shipMessage(msg);          // shipping the message
                 } catch(InterruptedException e) {
                     e.printStackTrace();
-                    // TODO: log event with a logger
+                    // TODO: log event with a runnable.logger
                 }
             }
             System.out.println("<<< PeerNotifier " + peer.toString() + " is stopped >>>");
@@ -62,7 +62,7 @@ public abstract class BasePeer extends RunnableInstance {
             } catch(RunnableException e) {
                 System.err.println("RunnableException caught in PeerNotifier: " + e.getMessage());
                 System.err.println("Stopping PeerNotifier...");
-                peer.stop();    // stop the peer associated to this PeerNotifier
+                peer.stop();    // stop the runnable.peer associated to this PeerNotifier
             }
         }
 

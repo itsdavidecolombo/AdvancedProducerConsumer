@@ -1,6 +1,8 @@
-package peer.message;
+package runnable.peer;
 
 public class Message {
+
+    public static final String PING_MSG = "PING";
 
     private static int ID = 0;
 
