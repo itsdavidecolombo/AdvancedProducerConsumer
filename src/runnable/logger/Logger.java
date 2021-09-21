@@ -4,8 +4,8 @@ import out.Recipient;
 
 public class Logger {
 
-    private final Recipient out;        // where the logged events are actually logged
-    private Formatter scheme;     // the scheme to be used to format a log message
+    private final Recipient out;    // where the logged events are actually logged
+    private Formatter scheme;       // the scheme to be used to format a log message
 
     /**
      * Constructor with double arguments. You must specify the output recipient and the formatter scheme.

@@ -1,9 +1,13 @@
-import runnable.logger.Formatter;
-import runnable.logger.FormatterRepo;
+/*import runnable.logger.Formatter;
+import runnable.logger.FormatterRepo;*/
+
+import out.DefaultRecipient;
+import out.Recipient;
+import runnable.logger.Loggable;
 import runnable.logger.Logger;
 import runnable.peer.Connection;
 import pluggable.Dashboard;
-import pluggable.IPluggable;
+import pluggable.Pluggable;
 import runnable.peer.BasePeer;
 import runnable.peer.Producer;
 import runnable.RunnableException;
@@ -13,8 +17,6 @@ import java.util.Random;
 public class Demo {
 
     public static void main(String[] args){
-
-        Logger logger;
 
         /* THIS IS A TEST FOR UNDERSTANDING IF THE FORMATTER AND FORMATTER REPOSITORY WORK PROPERLY
         try {
@@ -38,8 +40,13 @@ public class Demo {
         }
 
          */
+        Loggable loggableRef;
+        Recipient outRef;
 
-        IPluggable dashboard = new Dashboard(); // the pluggable object
+        Pluggable dashboard = new Dashboard(); // the pluggable object
+        loggableRef = (Loggable) dashboard;
+        outRef = new DefaultRecipient();
+        loggableRef.setLogger(new Logger(outRef));
 
 // ==========================================================================================
         final BasePeer p1 = new Producer("VermicelloPazzerello");

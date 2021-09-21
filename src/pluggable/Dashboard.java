@@ -1,12 +1,13 @@
 package pluggable;
 
+import runnable.logger.Loggable;
 import runnable.peer.Connection;
 import runnable.peer.Message;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Dashboard implements IPluggable {
+public class Dashboard extends Loggable implements Pluggable {
 
     private final List<Connection> connections;
 
@@ -22,6 +23,8 @@ public class Dashboard implements IPluggable {
     public void open(Connection conn) {
         System.out.println("<<< Dashboard opens a connection with " + conn.sender.toString() + " >>>");
         connections.add(conn);
+        // TODO: define a message scheme
+        super.logEvent("");
     }
 
     /**
@@ -32,6 +35,8 @@ public class Dashboard implements IPluggable {
     public void close(Connection conn) {
         System.out.println("<<< Dashboard closes a connection with " + conn.sender.toString() + " >>>");
         connections.remove(conn);
+        // TODO: define a message scheme
+        super.logEvent("");
     }
 
     /**
@@ -48,6 +53,8 @@ public class Dashboard implements IPluggable {
 
     private void processPingMessage(Message message){
         System.out.println("<<< Dashboard received a PING from " + message.getMessageSender() + " >>>");
+        super.logEvent("");
+        // TODO: define a message scheme
     }
 
 }

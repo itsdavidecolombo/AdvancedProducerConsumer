@@ -1,12 +1,14 @@
 package runnable;
 
+import runnable.logger.Loggable;
+
 /**
  * Abstract class that defined the interface for all the RunnableInstances in the project.
  *
  * A RunnableInstance has a state and the methods for managing that state.
  * A concrete subclass of RunnableInstance can be passed to a Thread object for creating the proper behaviour.
  */
-public abstract class RunnableInstance implements Runnable {
+public abstract class RunnableInstance extends Loggable implements Runnable {
 
     /**
      * Enum that defines the allowed state in which a RunnableInstance can be found while is alive.
