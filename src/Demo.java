@@ -3,7 +3,8 @@ import runnable.logger.FormatterRepo;*/
 
 import out.DefaultRecipient;
 import out.Recipient;
-import runnable.logger.Loggable;
+import runnable.logger.Formatter;
+import runnable.logger.FormatterRepo;
 import runnable.logger.Logger;
 import runnable.peer.Connection;
 import pluggable.Dashboard;
@@ -40,16 +41,20 @@ public class Demo {
         }
 
          */
-        Loggable loggableRef;
+
+        Logger loggerRef;
+        Formatter schemeRef;
         Recipient outRef;
 
-        Pluggable dashboard = new Dashboard(); // the pluggable object
-        loggableRef = (Loggable) dashboard;
-        outRef = new DefaultRecipient();
-        loggableRef.setLogger(new Logger(outRef));
+        Pluggable dashboard = new Dashboard();      // the pluggable object
+        schemeRef = FormatterRepo.getInstance().    // define the formatter scheme
+                newFormatter("mylogformatter",
+                "OPENER: <<<; CLOSER: >>>");
+
+        loggerRef = Logger.getLoggerWithFormatter(schemeRef);   // define the logger with the formatter scheme
 
 // ==========================================================================================
-        final BasePeer p1 = new Producer("VermicelloPazzerello");
+        final BasePeer p1 = new Producer("VermicelloPazzerello", loggerRef);
         p1.openConnection(new Connection(dashboard, p1));
         p1.openConnection(new Connection(dashboard, p1));       // test if the exception is correctly caught
         new Thread(() -> {      // runner Thread for running the BasePeer 1

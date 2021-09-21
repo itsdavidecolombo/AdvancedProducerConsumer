@@ -2,6 +2,7 @@ package runnable.peer;
 
 import runnable.RunnableException;
 import runnable.RunnableInstance;
+import runnable.logger.Logger;
 
 public abstract class BasePeer extends RunnableInstance {
 
@@ -34,7 +35,7 @@ public abstract class BasePeer extends RunnableInstance {
 
                     Thread.sleep(5000);       // sleep
                     msgContent = "Ping...";         // message content
-                    msg = new Message(Message.PING_MSG, msgContent, name);
+                    msg = new Message(Message.PING_MSG, msgContent, peer.toString());
                     peer.shipMessage(msg);          // shipping the message
                 } catch(InterruptedException e) {
                     e.printStackTrace();
@@ -75,10 +76,19 @@ public abstract class BasePeer extends RunnableInstance {
     private final String name;
     private Connection conn;
     private final PeerNotifier peerNotifier;
+    protected final Logger logger;
 
     public BasePeer(String nameVar){
         name = nameVar;
         id = ++BasePeer.ID;
+        logger = Logger.getDefaultLogger();
+        peerNotifier = new PeerNotifier(this);
+    }
+
+    public BasePeer(String nameVar, Logger loggerVar){
+        name = nameVar;
+        id = ++BasePeer.ID;
+        logger = loggerVar;
         peerNotifier = new PeerNotifier(this);
     }
 
@@ -96,7 +106,8 @@ public abstract class BasePeer extends RunnableInstance {
             connVar.open();
             conn = connVar;
         } catch(ConnException e) {
-            System.err.println("ConnException caught: " + e.getMessage());
+            logger.log("ConnException caught in openConnection() method. Message: " + e.getMessage());
+            // System.err.println("ConnException caught: " + e.getMessage());
         }
         notify();       // unlock a thread (if any) that is waiting for the connection to be opened!
     }
@@ -110,7 +121,8 @@ public abstract class BasePeer extends RunnableInstance {
         try {
             conn.close();
         } catch(ConnException e) {
-            System.err.println("ConnException caught: " + e.getMessage());
+            logger.log("ConnException caught in closeConnection() method. Message: " + e.getMessage());
+            // System.err.println("ConnException caught: " + e.getMessage());
         }
     }
 
@@ -122,7 +134,8 @@ public abstract class BasePeer extends RunnableInstance {
         try {
             conn.send(msgVar);
         } catch(ConnException e) {
-            System.err.println("ConnException caught: " + e.getMessage());
+            logger.log("ConnException caught in shipMessage() method. Message: " + e.getMessage());
+            // System.err.println("ConnException caught: " + e.getMessage());
         }
     }
 

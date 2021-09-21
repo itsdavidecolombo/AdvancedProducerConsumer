@@ -1,6 +1,7 @@
 package runnable.peer;
 
 import runnable.RunnableException;
+import runnable.logger.Logger;
 
 public class Producer extends BasePeer {
 
@@ -8,6 +9,11 @@ public class Producer extends BasePeer {
 
     public Producer(String nameVar) {
         super(nameVar);
+        producer = new Thread(this, toString());
+    }
+
+    public Producer(String nameVar, Logger loggerVar){
+        super(nameVar, loggerVar);
         producer = new Thread(this, toString());
     }
 
@@ -22,9 +28,13 @@ public class Producer extends BasePeer {
 
                     synchronized(this){
                         while(isPaused()) {
-                            System.out.println("<<< Producer " + toString() + " is paused >>>");
+                            super.logger.log("NAME: " + toString()+ ". " +
+                                    "STATUS: paused.");
+                            // System.out.println("<<< Producer " + toString() + " is paused >>>");
                             wait();
-                            System.out.println("<<< Producer " + toString() + " is resumed >>>");
+                            super.logger.log("NAME: " + toString()+ ". " +
+                                    "STATUS: resumed.");
+                            //System.out.println("<<< Producer " + toString() + " is resumed >>>");
                         }
                     }
                 } catch(InterruptedException e) {
@@ -32,7 +42,9 @@ public class Producer extends BasePeer {
                 }
             }
         }
-        System.out.println("<<< Producer " + toString() + " is stopped >>>");
+        super.logger.log("NAME: " + toString()+ ". " +
+                "STATUS: stopped.");
+        // System.out.println("<<< Producer " + toString() + " is stopped >>>");
     }
 
     /**
@@ -51,9 +63,15 @@ public class Producer extends BasePeer {
             super.runInstance();        // run the PeerNotifier thread
             this.producer.start();      // run the producer thread
         } catch(InterruptedException e){
-            System.err.println("InterruptedException caught in Producer runInstance(): " + e.getMessage());
+            super.logger.log("NAME: " + toString() +
+                    ". InterruptedException caught in runInstance(). " +
+                    e.getMessage());
+            // System.err.println("InterruptedException caught in Producer runInstance(): " + e.getMessage());
         }catch(RunnableException e) {
-            System.err.println("RunnableException caught in Producer runInstance(): " + e.getMessage());
+            super.logger.log("NAME: " + toString() +
+                    ". RunnableException caught in runInstance(). " +
+                    e.getMessage());
+            // System.err.println("RunnableException caught in Producer runInstance(): " + e.getMessage());
         }
     }
 
@@ -63,7 +81,10 @@ public class Producer extends BasePeer {
             super.resume();     // resume the PeerNotifier thread
             notify();           // wake up the producer thread when pausing
         } catch(RunnableException e) {
-            System.err.println("RunnableException caught in Producer resume(): " + e.getMessage());
+            super.logger.log("NAME: " + toString() +
+                    ". RunnableException caught in resume(). " +
+                    e.getMessage());
+            // System.err.println("RunnableException caught in Producer resume(): " + e.getMessage());
             super.stop();
         }
     }
