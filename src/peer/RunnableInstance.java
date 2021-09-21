@@ -1,7 +1,5 @@
 package peer;
 
-import peer.exception.RunnableException;
-
 /**
  * Abstract class that defined the interface for all the RunnableInstances in the project.
  *

@@ -1,8 +1,5 @@
 package peer;
 
-
-import dashboard.IDashboard;
-import peer.exception.RunnableException;
 import peer.message.Message;
 import peer.message.MessageConstants;
 
@@ -19,7 +16,7 @@ public abstract class BasePeer extends RunnableInstance {
 
         PeerNotifier(BasePeer peerVar){
             peer = peerVar;
-            threadNotifier = new Thread(this, name);
+            threadNotifier = new Thread(this, peer.toString());
         }
 
         public void run(){
@@ -29,9 +26,9 @@ public abstract class BasePeer extends RunnableInstance {
                 try {
                     synchronized(this){                         // checking if the thread should be paused
                         while(isPaused()) {
-                            System.out.println("<<< PeerNotifier " + name + " is paused >>>");
+                            System.out.println("<<< PeerNotifier " + peer.toString() + " is paused >>>");
                             wait();
-                            System.out.println("<<< PeerNotifier " + name + " is resumed >>>");
+                            System.out.println("<<< PeerNotifier " + peer.toString() + " is resumed >>>");
                         }
                     }
 
@@ -44,7 +41,7 @@ public abstract class BasePeer extends RunnableInstance {
                     // TODO: log event with a logger
                 }
             }
-            System.out.println("<<< PeerNotifier " + name + " is stopped >>>");
+            System.out.println("<<< PeerNotifier " + peer.toString() + " is stopped >>>");
         }
 
         @Override
@@ -64,41 +61,61 @@ public abstract class BasePeer extends RunnableInstance {
 
     private static int ID = 0;
 
-    protected final int id;
-    protected final String name;
-    protected final IDashboard dashboard;
-    protected final PeerNotifier peerNotifier;
+    private final int id;
+    private final String name;
+    private Connection conn;
+    private final PeerNotifier peerNotifier;
 
-    public BasePeer(IDashboard dashVar, String nameVar){
-        id = ++BasePeer.ID;
+    public BasePeer(String nameVar){
         name = nameVar;
-        dashboard = dashVar;
+        id = ++BasePeer.ID;
         peerNotifier = new PeerNotifier(this);
-        openConnection();   // open the connection directly from the constructor
     }
 
     /**
      * Private method for opening the connection with the Dashboard. This method is called automatically
      * only once during the constructor invocation.
      */
-    private void openConnection(){
-        dashboard.addMessage(new Message(MessageConstants.SPAWN_MSG, "Spawn...", name));
+    public synchronized final void openConnection(Connection connVar){
+        try {
+            connVar.open();
+            conn = connVar;
+        } catch(ConnException e) {
+            System.out.println("ConnException caught: " + e.getMessage());
+        }
+        notify();       // unlock a thread (if any) that is waiting for the connection to be opened!
     }
 
     /**
      * Private method for closing the connection with the Dashboard. This method is called automatically
      * only once when the BasePeer's stop() method is called.
      */
-    private void closeConnection(){
-        dashboard.addMessage(new Message(MessageConstants.KILL_MSG, "Kill...", name));
+    public final void closeConnection(){
+        try {
+            conn.close();
+        } catch(ConnException e) {
+            System.out.println("ConnException caught: " + e.getMessage());
+        }
     }
 
     /**
      * Interface for shipping a message to the Dashboard.
-     * @param msg
+     * @param msgVar
      */
-    public void shipMessage(Message msg){
-        dashboard.addMessage(msg);
+    public final void shipMessage(Message msgVar){
+        try {
+            conn.send(msgVar);
+        } catch(ConnException e) {
+            System.out.println("ConnException caught: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Method that is called by the subclasses for asking if the connection is opened
+     * @return
+     */
+    protected boolean isConnected(){
+        return conn != null && conn.isOpened();
     }
 
     /**
@@ -129,5 +146,10 @@ public abstract class BasePeer extends RunnableInstance {
         super.stop();
         peerNotifier.stop();
         closeConnection();
+    }
+
+    @Override
+    public String toString(){
+        return "@" + name + "_" + id;
     }
 }

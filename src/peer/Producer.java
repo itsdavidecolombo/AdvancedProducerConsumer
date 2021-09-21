@@ -1,31 +1,28 @@
 package peer;
 
-import dashboard.IDashboard;
-import peer.exception.RunnableException;
-
 public class Producer extends BasePeer {
 
     private final Thread producer;
 
-    public Producer(IDashboard dashVar, String nameVar) {
-        super(dashVar, nameVar);
-        producer = new Thread(this, name);
+    public Producer(String nameVar) {
+        super(nameVar);
+        producer = new Thread(this, toString());
     }
 
     @Override
     public void run() {
-        System.out.println("<<< Producer " + name + " is started >>>");
+        System.out.println("<<< Producer " + toString() + " is started >>>");
         while(!isStopped()){
             for(int i = 0; i < 5; i++){
                 try {
                     Thread.sleep(1000);
-                    System.out.println("Producer " + name + " puts " + i);
+                    System.out.println("Producer " + toString() + " puts " + i);
 
                     synchronized(this){
                         while(isPaused()) {
-                            System.out.println("<<< Producer " + name + " is paused >>>");
+                            System.out.println("<<< Producer " + toString() + " is paused >>>");
                             wait();
-                            System.out.println("<<< Producer " + name + " is resumed >>>");
+                            System.out.println("<<< Producer " + toString() + " is resumed >>>");
                         }
                     }
                 } catch(InterruptedException e) {
@@ -33,11 +30,20 @@ public class Producer extends BasePeer {
                 }
             }
         }
-        System.out.println("<<< Producer " + name + " is stopped >>>");
+        System.out.println("<<< Producer " + toString() + " is stopped >>>");
     }
 
     @Override
-    public void runInstance() throws RunnableException {
+    public synchronized void runInstance() throws RunnableException {
+        while(!isConnected()){
+            try {
+                System.out.println("!!! " + Thread.currentThread().getName() + " is waiting " +
+                        "for the connection on " + toString() + " to be opened !!! ");
+                wait();
+            } catch(InterruptedException e) {
+                System.out.println("runInstance() method in Producer has been interrupted: " + e);
+            }
+        }
         super.runInstance();        // run the PeerNotifier thread
         this.producer.start();      // run the producer thread
     }
@@ -53,4 +59,7 @@ public class Producer extends BasePeer {
         super.stop();
     }
 
+    public String toString(){
+        return super.toString();
+    }
 }
