@@ -2,16 +2,21 @@ package runnable.logger;
 
 import out.DefaultRecipient;
 import out.Recipient;
+import queue.IQueue;
+import queue.QueueListener;
+import queue.QueueListenerException;
 import runnable.RunnableException;
 import runnable.RunnableInstance;
 
-public class Logger extends RunnableInstance {
+public class Logger extends RunnableInstance implements QueueListener {
 
+    private static int ID = 0;
+
+    private final int id;
     private final Recipient out;        // where the logged events are actually logged
     private final Formatter scheme;     // the scheme to be used to format a log message
     private final Thread logger;
-
-    private boolean avaiableLog;
+    private IQueue queue = null;
     private String msgToLog;
 
     /**
@@ -48,10 +53,10 @@ public class Logger extends RunnableInstance {
      * @param formatterVar
      */
     private Logger(Recipient outVar, Formatter formatterVar) {
+        id = ++Logger.ID;
         out = outVar;
         scheme = formatterVar;
         logger = new Thread(this);
-        avaiableLog = false;
         runInstance();
     }
 
@@ -61,10 +66,10 @@ public class Logger extends RunnableInstance {
      * @param schemeVar
      */
     private Logger(Formatter schemeVar){
+        id = ++Logger.ID;
         out = new DefaultRecipient();
         scheme = schemeVar;
         logger = new Thread(this);
-        avaiableLog = false;
         runInstance();
     }
 
@@ -73,11 +78,20 @@ public class Logger extends RunnableInstance {
      * messages based on the default Formatter scheme.
      */
     private Logger(){
+        id = ++Logger.ID;
         out = new DefaultRecipient();
         scheme = FormatterRepo.getInstance().getDefaultFormatter();
         logger = new Thread(this);
-        avaiableLog = false;
         runInstance();
+    }
+
+    @Override
+    public void registerToQueue(IQueue q) throws QueueListenerException {
+        if(queue != null) {
+            String msg = "Logger " + this + " is already registered on IQueue " + queue;
+            throw new QueueListenerException(msg, QueueListenerException.ExceptionCause.ALREADY_REGISTERED);
+        }
+        queue = q;
     }
 
 // ===============================================================================================
@@ -94,32 +108,34 @@ public class Logger extends RunnableInstance {
                         wait();
                     }
                 }
-
-                synchronized(this) {
-                    while(!avaiableLog) {
-                        System.err.println("======== LOGGER " + out.toString() +
-                                " IS WAITING FOR AN AVAILABLE LOG ========");
-                        wait();
-                    }
-                    doLog();        // do the log, process the log message
-                    avaiableLog = false;
-                    notify();
-                }
+                // the logger calls the method get() and wait until a new message is available for logging.
+                msgToLog = queue.get();
+                doLog();
             }catch(InterruptedException ex){
                 ex.printStackTrace();
             }
         }
     }
 
+    private void doLog(){
+        out.write(
+                scheme.formatMessage(msgToLog)
+        );
+    }
+
     @Override
     public void runInstance() {
+        System.err.println("<<< STARTING THE LOGGER >>>");
         try {
+            if(queue == null)
+                throw new Exception("Error: cannot start the Logger because it is not registered to any LogQueue.");
             super.runInstance();
             logger.start();
             System.out.println("STARTING LOGGER");
         } catch(RunnableException e) {
-            System.err.println("RunnableException caught in runInstance() of Logger: "
-                    + e.getMessage());
+            System.err.println("RunnableException caught in runInstance() of Logger: " + e.getMessage());
+        }catch(Exception e){
+            System.err.println("Exception caught in runInstance() of Logger: " + e.getMessage());
         }
     }
 
@@ -129,34 +145,13 @@ public class Logger extends RunnableInstance {
             super.resume();
             notify();
         } catch(RunnableException e) {
-            System.err.println("RunnableException caught in resume() of Logger: " +
-                    e.getMessage());
+            System.err.println("RunnableException caught in resume() of Logger: " + e.getMessage());
             super.stop();
         }
     }
 
-    /**
-     * This method provides an interface for logging formatted String messages to the associated recipient.
-     * @param msg: the message to be logged
-     */
-    public synchronized final void log(String msg){
-        while(avaiableLog) {
-            try {
-                wait();
-            } catch(InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        System.err.println("======== LOGGER " + out.toString() +
-                " GOT A NEW LOG ========");
-        avaiableLog = true; // new message available
-        msgToLog = msg;     // set the message to be logged
-        notify();           // notify the logger thread that is waiting for the message to be logged
+    @Override
+    public String toString(){
+        return "@LOGGER_" + id;
     }
-
-    private void doLog(){
-        String formatterMsg = scheme.formatMessage(msgToLog);
-        out.write(formatterMsg);
-    }
-
 }

@@ -1,40 +1,36 @@
 package runnable.peer;
 
+import queue.IQueue;
 import runnable.RunnableException;
-import runnable.logger.Logger;
 
 public class Producer extends BasePeer {
 
     private final Thread producer;
 
-    public Producer(String nameVar) {
+    /*public Producer(String nameVar) {
         super(nameVar);
         producer = new Thread(this, toString());
-    }
+    }*/
 
-    public Producer(String nameVar, Logger loggerVar){
-        super(nameVar, loggerVar);
+    public Producer(String nameVar, IQueue queueVar){
+        super(nameVar, queueVar);
         producer = new Thread(this, toString());
     }
 
     @Override
     public void run() {
-        System.out.println("<<< Producer " + toString() + " is started >>>");
+        System.out.println("<<< Producer " + this + " is started >>>");
         while(!isStopped()){
             for(int i = 0; i < 5; i++){
                 try {
                     Thread.sleep(1000);
-                    System.out.println("Producer " + toString() + " puts " + i);
+                    System.out.println("Producer " + this + " puts " + i);
 
                     synchronized(this){
                         while(isPaused()) {
-                            super.logger.log("NAME: " + toString()+ ". " +
-                                    "STATUS: paused.");
-                            // System.out.println("<<< Producer " + toString() + " is paused >>>");
+                            queue.put("NAME: " + this + ". STATUS: paused.");
                             wait();
-                            super.logger.log("NAME: " + toString()+ ". " +
-                                    "STATUS: resumed.");
-                            //System.out.println("<<< Producer " + toString() + " is resumed >>>");
+                            queue.put("NAME: " + this + ". STATUS: resumed.");
                         }
                     }
                 } catch(InterruptedException e) {
@@ -42,9 +38,7 @@ public class Producer extends BasePeer {
                 }
             }
         }
-        super.logger.log("NAME: " + toString()+ ". " +
-                "STATUS: stopped.");
-        // System.out.println("<<< Producer " + toString() + " is stopped >>>");
+        queue.put("NAME: " + this + ". STATUS: stopped.");
     }
 
     /**
@@ -63,15 +57,11 @@ public class Producer extends BasePeer {
             super.runInstance();        // run the PeerNotifier thread
             this.producer.start();      // run the producer thread
         } catch(InterruptedException e){
-            super.logger.log("NAME: " + toString() +
-                    ". InterruptedException caught in runInstance(). " +
-                    e.getMessage());
-            // System.err.println("InterruptedException caught in Producer runInstance(): " + e.getMessage());
+            queue.put("NAME: " + this +
+                    ". InterruptedException caught in runInstance(). " + e.getMessage());
         }catch(RunnableException e) {
-            super.logger.log("NAME: " + toString() +
-                    ". RunnableException caught in runInstance(). " +
-                    e.getMessage());
-            // System.err.println("RunnableException caught in Producer runInstance(): " + e.getMessage());
+            queue.put("NAME: " + this +
+                    ". RunnableException caught in runInstance(). " + e.getMessage());
         }
     }
 
@@ -81,10 +71,8 @@ public class Producer extends BasePeer {
             super.resume();     // resume the PeerNotifier thread
             notify();           // wake up the producer thread when pausing
         } catch(RunnableException e) {
-            super.logger.log("NAME: " + toString() +
-                    ". RunnableException caught in resume(). " +
-                    e.getMessage());
-            // System.err.println("RunnableException caught in Producer resume(): " + e.getMessage());
+            queue.put("NAME: " + this +
+                    ". RunnableException caught in resume(). " + e.getMessage());
             super.stop();
         }
     }

@@ -1,25 +1,39 @@
 package pluggable;
 
-import runnable.logger.Logger;
+import queue.IQueue;
+import queue.QueueListener;
+import queue.QueueListenerException;
 import runnable.peer.Connection;
 import runnable.peer.Message;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Dashboard implements Pluggable {
+public class Dashboard implements Pluggable, QueueListener {
 
     private final List<Connection> connections;
-    private final Logger logger;
+    private IQueue queue = null;
 
-    public Dashboard(){
-        logger = Logger.getDefaultLogger();
+    private static Dashboard theInstance = null;
+
+    public static Dashboard getInstance(){
+        if(theInstance == null)
+            theInstance = new Dashboard();
+        return theInstance;
+    }
+
+    private Dashboard(){
         connections = new ArrayList<>();
     }
 
-    public Dashboard(Logger loggerVar){
-        connections = new ArrayList<>();
-        logger = loggerVar;
+    @Override
+    public void registerToQueue(IQueue q) throws QueueListenerException {
+        if(queue != null) {
+            String msg = "Failed to register the Dashboard " + this +
+                    " to queue " + q + ": queue reference in Dashboard not null";
+            throw new QueueListenerException(msg, QueueListenerException.ExceptionCause.ALREADY_REGISTERED);
+        }
+        queue = q;
     }
 
     /**
@@ -30,7 +44,7 @@ public class Dashboard implements Pluggable {
     public void open(Connection conn) {
         // System.out.println("<<< Dashboard opens a connection with " + conn.sender.toString() + " >>>");
         connections.add(conn);
-        logger.log("NAME: " + toString() + ". Connection established successfully." +
+        queue.put("NAME: " + this + ". Connection established successfully. " +
                 "TARGET: " + conn.sender.toString());
     }
 
@@ -42,7 +56,7 @@ public class Dashboard implements Pluggable {
     public void close(Connection conn) {
         // System.out.println("<<< Dashboard closes a connection with " + conn.sender.toString() + " >>>");
         connections.remove(conn);
-        logger.log("NAME: " + toString() + ". Connection closed successfully." +
+        queue.put("NAME: " + this + ". Connection closed successfully. " +
                 "TARGET: " + conn.sender.toString());
     }
 
@@ -61,8 +75,11 @@ public class Dashboard implements Pluggable {
     private void processPingMessage(Message message){
         // System.out.println("<<< Dashboard received a PING from " + message.getMessageSender() + " >>>");
         // TODO: define a message scheme
-        logger.log("NAME: " + toString() + ". PING received successfully." +
+        queue.put("NAME: " + this + ". PING received successfully. " +
                 "TARGET: " + message.getMessageSender());
     }
 
+    public String toString(){
+        return "@DASHBOARD";
+    }
 }

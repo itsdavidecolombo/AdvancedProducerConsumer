@@ -1,8 +1,9 @@
 package runnable.peer;
 
+import queue.IQueue;
 import runnable.RunnableException;
 import runnable.RunnableInstance;
-import runnable.logger.Logger;
+import queue.LogQueue;
 
 public abstract class BasePeer extends RunnableInstance {
 
@@ -27,9 +28,9 @@ public abstract class BasePeer extends RunnableInstance {
                 try {
                     synchronized(this){                         // checking if the thread should be paused
                         while(isPaused()) {
-                            System.out.println("<<< PeerNotifier " + peer.toString() + " is paused >>>");
+                            System.out.println("<<< PeerNotifier " + peer + " is paused >>>");
                             wait();
-                            System.out.println("<<< PeerNotifier " + peer.toString() + " is resumed >>>");
+                            System.out.println("<<< PeerNotifier " + peer + " is resumed >>>");
                         }
                     }
 
@@ -42,7 +43,7 @@ public abstract class BasePeer extends RunnableInstance {
                     // TODO: log event with a runnable.logger
                 }
             }
-            System.out.println("<<< PeerNotifier " + peer.toString() + " is stopped >>>");
+            System.out.println("<<< PeerNotifier " + peer + " is stopped >>>");
         }
 
         @Override
@@ -76,19 +77,20 @@ public abstract class BasePeer extends RunnableInstance {
     private final String name;
     private Connection conn = null;
     private final PeerNotifier peerNotifier;
-    protected final Logger logger;
+    protected final IQueue queue;
 
-    public BasePeer(String nameVar){
+    /*public BasePeer(String nameVar){
         name = nameVar;
         id = ++BasePeer.ID;
-        logger = Logger.getDefaultLogger();
+        queue = new LogQueue();     // avoid this because no one can register the Queue
         peerNotifier = new PeerNotifier(this);
     }
+     */
 
-    public BasePeer(String nameVar, Logger loggerVar){
+    public BasePeer(String nameVar, IQueue queueVar){
         name = nameVar;
         id = ++BasePeer.ID;
-        logger = loggerVar;
+        queue = queueVar;
         peerNotifier = new PeerNotifier(this);
     }
 
@@ -96,19 +98,19 @@ public abstract class BasePeer extends RunnableInstance {
      * Final and Synchronized method for opening the connection with a Pluggable object.
      * This method catches exceptions from the Connection object if the user tries to open a connection
      * that is already opened.
-     * If no exception is caught, the Connection object reference is stored in the conn instance variable.
+     * If no exception is caught, the Connection object reference is stored in the connection instance variable.
      *
-     * The notify() primitive method must be called to notify a possible Thread that is waiting for the
+     * The 'notify()' primitive method must be called to notify a possible Thread that is waiting for the
      * connection to be opened.
      */
     public synchronized final void openConnection(Connection connVar){
         try {
             if(conn != null)
-                throw new ConnException("Peer " + toString() + " is already connected.");
+                throw new ConnException("Peer " + this + " is already connected.");
             connVar.open();
             conn = connVar;
         } catch(ConnException e) {
-            logger.log("ConnException caught in openConnection() method. Message: " + e.getMessage());
+            queue.put("ConnException caught in openConnection() method. Message: " + e.getMessage());
             // System.err.println("ConnException caught: " + e.getMessage());
         }
         notify();       // unlock a thread (if any) that is waiting for the connection to be opened!
@@ -123,7 +125,7 @@ public abstract class BasePeer extends RunnableInstance {
         try {
             conn.close();
         } catch(ConnException e) {
-            logger.log("ConnException caught in closeConnection() method. Message: " + e.getMessage());
+            queue.put("ConnException caught in closeConnection() method. Message: " + e.getMessage());
             // System.err.println("ConnException caught: " + e.getMessage());
         }
     }
@@ -136,7 +138,7 @@ public abstract class BasePeer extends RunnableInstance {
         try {
             conn.send(msgVar);
         } catch(ConnException e) {
-            logger.log("ConnException caught in shipMessage() method. Message: " + e.getMessage());
+            queue.put("ConnException caught in shipMessage() method. Message: " + e.getMessage());
             // System.err.println("ConnException caught: " + e.getMessage());
         }
     }
@@ -164,21 +166,19 @@ public abstract class BasePeer extends RunnableInstance {
     public void pause() throws RunnableException {
         super.pause();
         peerNotifier.pause();
-        logger.pause();
     }
 
     @Override
     public void resume() throws RunnableException {
         super.resume();
         peerNotifier.resume();
-        logger.resume();
     }
 
     @Override
     public void stop() {
         super.stop();
         peerNotifier.stop();
-        logger.stop();
+        // TODO: how to stop the Logger thread???
         closeConnection();
     }
 

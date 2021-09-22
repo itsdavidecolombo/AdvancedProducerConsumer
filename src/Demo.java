@@ -1,10 +1,10 @@
-/*import runnable.logger.Formatter;
-import runnable.logger.FormatterRepo;*/
 
-import out.DefaultRecipient;
-import out.Recipient;
+import queue.IQueue;
+import queue.QueueListener;
+import queue.QueueListenerException;
 import runnable.logger.Formatter;
 import runnable.logger.FormatterRepo;
+import queue.LogQueue;
 import runnable.logger.Logger;
 import runnable.peer.Connection;
 import pluggable.Dashboard;
@@ -19,42 +19,51 @@ public class Demo {
 
     public static void main(String[] args){
 
-        /* THIS IS A TEST FOR UNDERSTANDING IF THE FORMATTER AND FORMATTER REPOSITORY WORK PROPERLY
+// ========================================================================================================
+
+//                                          DASHBOARD SETUP
+
+// ========================================================================================================
+        QueueListener listenerRef;      // create a reference variable of type QueueListener
+        IQueue queueRef;                // create a reference variable of type IQueue
+
+        queueRef = new LogQueue();
+
+        Pluggable dashboard = Dashboard.getInstance();          // get the unique instance of the Dashboard
+        listenerRef = (QueueListener) dashboard;
         try {
-            FormatterRepo formatterRepository = FormatterRepo.getInstance();
-            Formatter got;
-
-            Thread.sleep(1000);
-            got = formatterRepository.getFormatterByName("myformatter");    // exception test
-            System.out.println(got.toString());
-            Thread.sleep(1000);
-            got = formatterRepository.getDefaultFormatter();    // default formatter test
-            System.out.println(got.toString());
-
-            formatterRepository.newFormatter("MyFormatter", "$", "#", "-"); // formatter creation test
-            Thread.sleep(1000);
-            got = formatterRepository.getFormatterByName("MyFormatter");    // formatter pull test
-            System.out.println(got.toString());
-
-        } catch(InterruptedException e) {
-            e.printStackTrace();
+            listenerRef.registerToQueue(queueRef);              // register the Dashboard to the queue
+            listenerRef = Logger.getDefaultLogger();            // create the Logger for the Dashboard
+            listenerRef.registerToQueue(queueRef);              // register the dashboard Logger to the queue
+            queueRef = null;
+        } catch(QueueListenerException e) {
+            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
         }
 
-         */
+// ========================================================================================================
 
-        Logger loggerRef;
-        Formatter schemeRef;
-        Recipient outRef;
+//                                          LOGGER SETUP
 
-        Pluggable dashboard = new Dashboard();      // the pluggable object
-        schemeRef = FormatterRepo.getInstance().    // define the formatter scheme
+// ========================================================================================================
+
+        Formatter schemeRef;    // create a reference variable for the Formatter scheme
+        Logger loggerRef;        // create a reference variable for the Logger
+
+        schemeRef = FormatterRepo.getInstance().                // define the formatter scheme
                 newFormatter("mylogformatter",
                 "OPENER: <<<; CLOSER: >>>");
 
         loggerRef = Logger.getLoggerWithFormatter(schemeRef);   // define the logger with the formatter scheme
 
+        queueRef = new LogQueue();      // create a new Queue
+        try {
+            loggerRef.registerToQueue(queueRef);         // register the Logger to the Queue
+        } catch(QueueListenerException e) {
+            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
+        }
+
 // ==========================================================================================
-        final BasePeer p1 = new Producer("VermicelloPazzerello", loggerRef);
+        final BasePeer p1 = new Producer("VermicelloPazzerello", queueRef);
         Connection conn1 = new Connection(dashboard, p1);
         p1.openConnection(conn1);
         p1.openConnection(new Connection(dashboard, p1));       // test if the exception is correctly caught
@@ -69,7 +78,15 @@ public class Demo {
         }).start();
 
 // ==========================================================================================
-        final BasePeer p2 = new Producer("LumachinaGentile");
+        queueRef = new LogQueue();
+        loggerRef = Logger.getDefaultLogger();
+        try {
+            loggerRef.registerToQueue(queueRef);
+        } catch(QueueListenerException e) {
+            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
+        }
+
+        final BasePeer p2 = new Producer("LumachinaGentile", queueRef);
         new Thread(() -> {      // runner Thread for running the BasePeer 2
             try {
                 p2.runInstance();
@@ -82,7 +99,15 @@ public class Demo {
         p2.openConnection(new Connection(dashboard, p2));       // open connection
 
 // ==========================================================================================
-        final BasePeer p3 = new Producer("LaMuccaMuu");
+        queueRef = new LogQueue();
+        loggerRef = Logger.getDefaultLogger();
+        try {
+            loggerRef.registerToQueue(queueRef);
+        } catch(QueueListenerException e) {
+            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
+        }
+
+        final BasePeer p3 = new Producer("LaMuccaMuu", queueRef);
         new Thread(() -> {      // runner Thread for running the BasePeer 3
             try {
                 p3.runInstance();
@@ -120,3 +145,28 @@ public class Demo {
 
     }
 }
+
+
+
+/* THIS IS A TEST FOR UNDERSTANDING IF THE FORMATTER AND FORMATTER REPOSITORY WORK PROPERLY
+        try {
+            FormatterRepo formatterRepository = FormatterRepo.getInstance();
+            Formatter got;
+
+            Thread.sleep(1000);
+            got = formatterRepository.getFormatterByName("myformatter");    // exception test
+            System.out.println(got.toString());
+            Thread.sleep(1000);
+            got = formatterRepository.getDefaultFormatter();    // default formatter test
+            System.out.println(got.toString());
+
+            formatterRepository.newFormatter("MyFormatter", "$", "#", "-"); // formatter creation test
+            Thread.sleep(1000);
+            got = formatterRepository.getFormatterByName("MyFormatter");    // formatter pull test
+            System.out.println(got.toString());
+
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+        }
+
+         */
