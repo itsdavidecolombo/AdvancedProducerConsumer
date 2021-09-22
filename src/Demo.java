@@ -55,8 +55,10 @@ public class Demo {
 
 // ==========================================================================================
         final BasePeer p1 = new Producer("VermicelloPazzerello", loggerRef);
-        p1.openConnection(new Connection(dashboard, p1));
+        Connection conn1 = new Connection(dashboard, p1);
+        p1.openConnection(conn1);
         p1.openConnection(new Connection(dashboard, p1));       // test if the exception is correctly caught
+
         new Thread(() -> {      // runner Thread for running the BasePeer 1
             try {
                 p1.runInstance();
@@ -76,6 +78,7 @@ public class Demo {
                 e.printStackTrace();
             }
         }).start();
+        // p2.openConnection(conn1);       // test ConnException when a connection is already opened
         p2.openConnection(new Connection(dashboard, p2));       // open connection
 
 // ==========================================================================================

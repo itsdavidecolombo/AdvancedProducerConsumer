@@ -2,13 +2,17 @@ package runnable.logger;
 
 import out.DefaultRecipient;
 import out.Recipient;
+import runnable.RunnableException;
 import runnable.RunnableInstance;
 
 public class Logger extends RunnableInstance {
 
-    private final Recipient out;    // where the logged events are actually logged
-    private Formatter scheme;       // the scheme to be used to format a log message
+    private final Recipient out;        // where the logged events are actually logged
+    private final Formatter scheme;     // the scheme to be used to format a log message
     private final Thread logger;
+
+    private boolean avaiableLog;
+    private String msgToLog;
 
     /**
      * Return the default Logger instance.
@@ -46,7 +50,9 @@ public class Logger extends RunnableInstance {
     private Logger(Recipient outVar, Formatter formatterVar) {
         out = outVar;
         scheme = formatterVar;
-        logger = createLoggerThread();
+        logger = new Thread(this);
+        avaiableLog = false;
+        runInstance();
     }
 
     /**
@@ -57,7 +63,9 @@ public class Logger extends RunnableInstance {
     private Logger(Formatter schemeVar){
         out = new DefaultRecipient();
         scheme = schemeVar;
-        logger = createLoggerThread();
+        logger = new Thread(this);
+        avaiableLog = false;
+        runInstance();
     }
 
     /**
@@ -67,42 +75,87 @@ public class Logger extends RunnableInstance {
     private Logger(){
         out = new DefaultRecipient();
         scheme = FormatterRepo.getInstance().getDefaultFormatter();
-        logger = createLoggerThread();
+        logger = new Thread(this);
+        avaiableLog = false;
+        runInstance();
     }
 
-    /**
-     * Overloaded constructor. Simply specify the output recipient.
-     * @param outVar
-     */
-    public Logger(Recipient outVar){
-        out = outVar;
-        scheme = FormatterRepo.getInstance().getDefaultFormatter();
-        logger = createLoggerThread();
-    }
+// ===============================================================================================
 
-    private Thread createLoggerThread(){
-        return new Thread(this);
+//                                          THREAD METHODS
+
+// ===============================================================================================
+    @Override
+    public void run() {
+        while(!super.isStopped()){
+            try {
+                synchronized(this) {
+                    while(isPaused()) {
+                        wait();
+                    }
+                }
+
+                synchronized(this) {
+                    while(!avaiableLog) {
+                        System.err.println("======== LOGGER " + out.toString() +
+                                " IS WAITING FOR AN AVAILABLE LOG ========");
+                        wait();
+                    }
+                    doLog();        // do the log, process the log message
+                    avaiableLog = false;
+                    notify();
+                }
+            }catch(InterruptedException ex){
+                ex.printStackTrace();
+            }
+        }
     }
 
     @Override
-    public void run() {
-        // TODO: start the logger thread
+    public void runInstance() {
+        try {
+            super.runInstance();
+            logger.start();
+            System.out.println("STARTING LOGGER");
+        } catch(RunnableException e) {
+            System.err.println("RunnableException caught in runInstance() of Logger: "
+                    + e.getMessage());
+        }
     }
 
-    /**
-     * This method sets the formatter scheme to schemeVar.
-     * @param schemeVar: the new formatter scheme
-     */
-    public void setFormatter(Formatter schemeVar){
-        scheme = schemeVar;
+    @Override
+    public synchronized void resume(){
+        try {
+            super.resume();
+            notify();
+        } catch(RunnableException e) {
+            System.err.println("RunnableException caught in resume() of Logger: " +
+                    e.getMessage());
+            super.stop();
+        }
     }
 
     /**
      * This method provides an interface for logging formatted String messages to the associated recipient.
      * @param msg: the message to be logged
      */
-    public final void log(String msg){
-        String formatterMsg = scheme.formatMessage(msg);
+    public synchronized final void log(String msg){
+        while(avaiableLog) {
+            try {
+                wait();
+            } catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.err.println("======== LOGGER " + out.toString() +
+                " GOT A NEW LOG ========");
+        avaiableLog = true; // new message available
+        msgToLog = msg;     // set the message to be logged
+        notify();           // notify the logger thread that is waiting for the message to be logged
+    }
+
+    private void doLog(){
+        String formatterMsg = scheme.formatMessage(msgToLog);
         out.write(formatterMsg);
     }
 

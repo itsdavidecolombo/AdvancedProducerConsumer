@@ -1,6 +1,8 @@
 package runnable.logger;
 
 
+import java.util.StringTokenizer;
+
 public class Formatter {
 
     private final String allowedSymbols = "$%&/=?^!_-.<>";
@@ -14,6 +16,7 @@ public class Formatter {
     private final int id;
     private final String name;
     private final String[] formatterSymbols;
+    private final StringBuilder sb;
 
     /**
      * Method that returns the default formatter scheme.
@@ -44,6 +47,7 @@ public class Formatter {
         name = nameVar;
         formatterSymbols = fArgs;
         id = ++Formatter.ID;
+        sb = new StringBuilder();
     }
 
     /**
@@ -52,33 +56,26 @@ public class Formatter {
      * @return
      */
     public String formatMessage(String msgContent){
-        // TODO: format the message
-        return "";
+        return msgContent;
     }
 
-    /**
-     * This method compares two Formatter scheme objects for equality.
-     * Two Formatter instances are equal if:
-     * - they have the same name,
-     * - they have the same number of arguments,
-     * - they have the same id number,
-     * - they have the same symbols.
-     * @param fVar
-     * @return
-     */
     /*
-    public boolean equals(Formatter fVar){
-        boolean equals;
-        equals = (fVar.formatterSymbols.length == formatterSymbols.length);
-        if(equals) // if the two formatter schemes have the same number of symbols, then compare the symbols.
-            for(int i = 0; i < formatterSymbols.length; i++)
-                equals &= (formatterSymbols[i].equals(fVar.formatterSymbols[i]));
-        if(equals)  // if the two formatter have the same symbol scheme, then compare the names.
-            equals = name.equals(fVar.name);
-        if(equals)  // if the two formatter have the same name, compare the ids.
-            equals = (id == fVar.id);
-        return equals;
-    }*/
+    private String parseKeyValuePair(String scheme){
+        String[] tokens = scheme.split(";");
+        String[] keyValuePair;
+        String key, value;
+        for(String tok : tokens){
+            keyValuePair = tok.split(":");
+            key = keyValuePair[0];
+            value = keyValuePair[1];
+        }
+        return "";
+    }
+     */
+
+    private void clearStringBuilder(){
+        sb.setLength(0);
+    }
 
     /**
      * This method compares the names of two Formatter schemes for equality.

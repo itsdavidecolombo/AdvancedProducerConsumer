@@ -74,7 +74,7 @@ public abstract class BasePeer extends RunnableInstance {
 
     private final int id;
     private final String name;
-    private Connection conn;
+    private Connection conn = null;
     private final PeerNotifier peerNotifier;
     protected final Logger logger;
 
@@ -103,6 +103,8 @@ public abstract class BasePeer extends RunnableInstance {
      */
     public synchronized final void openConnection(Connection connVar){
         try {
+            if(conn != null)
+                throw new ConnException("Peer " + toString() + " is already connected.");
             connVar.open();
             conn = connVar;
         } catch(ConnException e) {
@@ -162,18 +164,21 @@ public abstract class BasePeer extends RunnableInstance {
     public void pause() throws RunnableException {
         super.pause();
         peerNotifier.pause();
+        logger.pause();
     }
 
     @Override
     public void resume() throws RunnableException {
         super.resume();
         peerNotifier.resume();
+        logger.resume();
     }
 
     @Override
     public void stop() {
         super.stop();
         peerNotifier.stop();
+        logger.stop();
         closeConnection();
     }
 

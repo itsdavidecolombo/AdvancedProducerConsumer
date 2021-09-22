@@ -21,6 +21,7 @@ public class Dashboard implements Pluggable {
         connections = new ArrayList<>();
         logger = loggerVar;
     }
+
     /**
      * This method opens a connection with the PluggableObj upon which is called.
      * @param conn
