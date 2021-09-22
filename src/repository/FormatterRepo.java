@@ -2,7 +2,6 @@ package repository;
 
 import queue.IQueue;
 import queue.IQueueListener;
-import queue.LogQueue;
 import queue.QueueListenerException;
 import runnable.peer.Message;
 
@@ -69,6 +68,7 @@ public class FormatterRepo implements IQueueListener {
         }
         exists = Formatter.make(name, fArgs);
         availableFormatterSchemes.add(exists);
+        queue.put(this + ": created new Formatter " + name);
         return exists;
     }
 

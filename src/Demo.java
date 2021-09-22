@@ -1,5 +1,5 @@
 
-import out.DefaultRecipient;
+import out.FileRecipient;
 import out.IRecipient;
 import queue.IQueue;
 import queue.IQueueListener;
@@ -34,7 +34,8 @@ public class Demo {
         IQueue queueRef;                // create a reference variable of type IQueue
         IRecipient outRef;              // create a reference variable of type IRecipient
 
-        outRef = new DefaultRecipient();
+        outRef = new FileRecipient("formatterRepository", ".txt", false);
+
         loggerRef = Logger.getLogger(outRef, formatterRepo.getDefaultFormatter());
         queueRef = new LogQueue();
         try{
@@ -64,7 +65,8 @@ public class Demo {
 
         try {
             listenerRef.registerQueue(queueRef);              // register the Dashboard to the queue
-            listenerRef = Logger.getLogger(new DefaultRecipient(), formatterRepo.getDefaultFormatter());
+            outRef = new FileRecipient("dashboard", ".txt", false);
+            listenerRef = Logger.getLogger(outRef, formatterRepo.getDefaultFormatter());
             listenerRef.registerQueue(queueRef);              // register the dashboard Logger to the queue
             queueRef = null;
         } catch(QueueListenerException e) {
@@ -78,7 +80,8 @@ public class Demo {
 // ========================================================================================================
 
         queueRef = new LogQueue();      // create a new Queue
-        loggerRef = Logger.getLogger(new DefaultRecipient(), schemeRef);
+        outRef = new FileRecipient("basepeer1", ".txt", false);
+        loggerRef = Logger.getLogger(outRef, schemeRef);
         try {
             loggerRef.registerQueue(queueRef);
         } catch(QueueListenerException e) {
@@ -102,7 +105,8 @@ public class Demo {
 
 // ==========================================================================================
         queueRef = new LogQueue();
-        loggerRef = Logger.getLogger(new DefaultRecipient(), formatterRepo.getDefaultFormatter());
+        outRef = new FileRecipient("basepeer2", ".txt", false);
+        loggerRef = Logger.getLogger(outRef, formatterRepo.getDefaultFormatter());
         try {
             loggerRef.registerQueue(queueRef);
         } catch(QueueListenerException e) {
@@ -123,7 +127,8 @@ public class Demo {
 
 // ==========================================================================================
         queueRef = new LogQueue();
-        loggerRef = Logger.getLogger(new DefaultRecipient(), formatterRepo.getDefaultFormatter());
+        outRef = new FileRecipient("basepeer3", ".txt", false);
+        loggerRef = Logger.getLogger(outRef, formatterRepo.getDefaultFormatter());
         try {
             loggerRef.registerQueue(queueRef);
         } catch(QueueListenerException e) {

@@ -43,8 +43,7 @@ public class Dashboard implements IPluggable, IQueueListener {
     @Override
     public void open(Connection conn) {
         connections.add(conn);
-        queue.put("NAME: " + this + ". Connection established successfully. " +
-                        "TARGET: " + conn.sender.toString());
+        queue.put(this + ": connection established successfully with " + conn.sender.toString());
     }
 
     /**
@@ -54,8 +53,7 @@ public class Dashboard implements IPluggable, IQueueListener {
     @Override
     public void close(Connection conn) {
         connections.remove(conn);
-        queue.put("NAME: " + this + ". Connection closed successfully. " +
-                        "TARGET: " + conn.sender.toString());
+        queue.put(this + ": connection closed successfully with " + conn.sender.toString());
         if(connections.isEmpty())
             queue.put(Message.CLOSE_MSG);
     }

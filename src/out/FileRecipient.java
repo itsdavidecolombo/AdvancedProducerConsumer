@@ -1,65 +1,49 @@
 package out;
 
+import runnable.peer.Message;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class FileRecipient implements IRecipient {
 
-    private enum FileRecipientState{
-        CREATED, OPENED, CLOSED
-    }
+    private static final String ROOT_DIR = "./log/";
+    private static final String LOG_FILE = "logfile";
 
+    private final String dir;
     private final String filename;
-    private FileRecipientState currentState;
-    private BufferedWriter writer;
+    private final boolean append;
+    private PrintWriter writer;
 
-    public FileRecipient(String nameVar){
-        filename = nameVar;
-        currentState = FileRecipientState.CREATED;
+    public FileRecipient(String nameVar, String extension, boolean appendLog){
+        dir = nameVar;
+        filename = LOG_FILE+extension;
+        append = appendLog;
+        openFile();         // open the file
     }
 
-    /**
-     * This method opens the file recipient. Every time this method is called, before opening the file
-     * associated to this Recipient instance, it verifies if the file is already opened.
-     * If it is, it throws a new Exception.
-     * @throws Exception
-     */
-    public void openFile() throws Exception {
-        if(isOpened())
-            throw new Exception("File recipient \"" + filename + "\" is already opened!");
-        // TODO: specify the append mode
-        writer = new BufferedWriter(new FileWriter(filename));
+    private void openFile() {
+        try {
+            String fullPath = ROOT_DIR + dir + "/" + filename;
+            writer = new PrintWriter(new BufferedWriter(new FileWriter(fullPath, append)));
+        } catch(IOException e) {
+            System.err.println("IOException occurred while opening FileRecipient " + filename + ": " + e.getMessage());
+        }
     }
 
-    /**
-     * This method closes the file recipient. Every time this method is called, before closing the file
-     * associated to this Recipient instance, it verifies if the file is opened.
-     * If not, it throws an Exception.
-     * @throws Exception
-     */
-    public void closeFile() throws Exception {
-        if(!isOpened())
-            throw new Exception("Cannot close file recipient \"" + filename + "\" when is not opened!");
+    private void closeFile() {
         writer.close();
     }
 
     @Override
     public void write(String msg) {
-        try {
-            if(!isOpened())
-                throw new Exception("");
-            writer.write(msg);
-        } catch(IOException e) {
-            System.err.println("IOException caught while writing in file recipient \"" + filename + "\"");
-            System.err.println("Error writing message: " + msg);
-        } catch(Exception e) {
-            System.err.println("Exception caught while writing in file recipient \"" + filename + "\"");
+        if(msg.equals(Message.CLOSE_MSG))
+            closeFile();
+        else {
+            writer.println(msg);
+            writer.flush();
         }
     }
-
-    public boolean isOpened(){
-        return currentState == FileRecipientState.OPENED;
-    }
-
 }
