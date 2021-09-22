@@ -27,7 +27,7 @@ public class Dashboard implements IPluggable, IQueueListener {
     }
 
     @Override
-    public void registerToQueue(IQueue q) throws QueueListenerException {
+    public void registerQueue(IQueue q) throws QueueListenerException {
         if(queue != null) {
             String msg = "Failed to register the Dashboard " + this +
                     " to queue " + q + ": queue reference in Dashboard not null";

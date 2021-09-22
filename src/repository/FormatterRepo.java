@@ -1,7 +1,8 @@
-package runnable.logger;
+package repository;
 
 import queue.IQueue;
 import queue.IQueueListener;
+import queue.LogQueue;
 import queue.QueueListenerException;
 import runnable.peer.Message;
 
@@ -26,9 +27,6 @@ public class FormatterRepo implements IQueueListener {
         return theInstance;
     }
 
-    /**
-     * Private constructor compliant to the Singleton design pattern.
-     */
     private FormatterRepo(){
         availableFormatterSchemes = new ArrayList<>();
         defaultFormatter = Formatter.defaultFormatter();
@@ -44,10 +42,10 @@ public class FormatterRepo implements IQueueListener {
     }
 
     @Override
-    public void registerToQueue(IQueue q) throws QueueListenerException {
+    public void registerQueue(IQueue q) throws QueueListenerException {
         if(queue != null){
             String msgExc = this + " is already registered on Queue " + queue;
-            throw  new QueueListenerException(msgExc, QueueListenerException.ExceptionCause.ALREADY_REGISTERED);
+            throw new QueueListenerException(msgExc, QueueListenerException.ExceptionCause.ALREADY_REGISTERED);
         }
         queue = q;
     }
@@ -59,23 +57,19 @@ public class FormatterRepo implements IQueueListener {
      * @param name
      * @param fArgs
      * @return
-     * @throws Exception
+     * @throws QueueListenerException
      */
     public Formatter newFormatter(String name, String ... fArgs) throws QueueListenerException {
-        isRegisteredToQueue();      // check if the FormatterRepo is registered on a Queue
-
-        Formatter newIn = defaultFormatter;
-        try {
-            for(Formatter av : availableFormatterSchemes)
-                if(av.equals(name))
-                    throw new Exception("The name \"" + name + "\" is already in use.");
-            newIn = Formatter.make(name, fArgs);
-            availableFormatterSchemes.add(newIn);
-            queue.put(this + " added new formatter named: " + newIn);
-        } catch(Exception e) {
-            queue.put(this + " caught Exception in newFormatter(): " + e.getMessage());
+        Formatter exists;
+        checkQueueRegistration();                   // (GUARD METHOD) throws QueueListenerException
+        exists = searchFormatterByName(name);
+        if(exists != null){
+            queue.put(this + ": Formatter " + name + " already available.");
+            return exists;
         }
-        return newIn;
+        exists = Formatter.make(name, fArgs);
+        availableFormatterSchemes.add(exists);
+        return exists;
     }
 
     /**
@@ -83,20 +77,24 @@ public class FormatterRepo implements IQueueListener {
      * any exists it returns that instance, otherwise throws an Exception.
      * @param nameVar
      * @return
-     * @throws Exception
+     * @throws QueueListenerException
      */
     public Formatter getFormatterByName(String nameVar) throws QueueListenerException {
-        isRegisteredToQueue();      // check: if it fails, throws and exception
-
-        try {
-            for(Formatter av : availableFormatterSchemes)
-                if(av.equals(nameVar))
-                    return av;
-            throw new Exception("No Formatter found with name \"" + nameVar + "\"");
-        } catch(Exception e) {
-            queue.put(this + " caught Exception in getFormatterByName(): " + e.getMessage());
+        Formatter exists;
+        checkQueueRegistration();                   // (GUARD METHOD) throws QueueListenerException
+        exists = searchFormatterByName(nameVar);
+        if(exists == null) {
+            queue.put(this + ": no existing Formatter associated to " + nameVar);
+            return defaultFormatter;
         }
-        return defaultFormatter;
+        return exists;
+    }
+
+    private Formatter searchFormatterByName(String nameVar) {
+        for(Formatter av : availableFormatterSchemes)
+            if(av.equals(nameVar))
+                return av;
+        return null;
     }
 
     /**
@@ -104,7 +102,7 @@ public class FormatterRepo implements IQueueListener {
      * throws QueueListenerException
      * @throws QueueListenerException
      */
-    private void isRegisteredToQueue() throws QueueListenerException {
+    private void checkQueueRegistration() throws QueueListenerException {
         if(queue == null) {
             String msgExc = this + " is not registered to any Queue.";
             throw new QueueListenerException(msgExc, QueueListenerException.ExceptionCause.NOT_REGISTERED);

@@ -1,9 +1,11 @@
 
+import out.DefaultRecipient;
+import out.IRecipient;
 import queue.IQueue;
 import queue.IQueueListener;
 import queue.QueueListenerException;
-import runnable.logger.Formatter;
-import runnable.logger.FormatterRepo;
+import repository.Formatter;
+import repository.FormatterRepo;
 import queue.LogQueue;
 import runnable.logger.Logger;
 import runnable.peer.Connection;
@@ -21,59 +23,53 @@ public class Demo {
 
 // ========================================================================================================
 
-//                                          DASHBOARD SETUP
-
-// ========================================================================================================
-        IQueueListener listenerRef;      // create a reference variable of type QueueListener
-        IQueue queueRef;                // create a reference variable of type IQueue
-
-        queueRef = new LogQueue();
-
-        IPluggable dashboard = Dashboard.getInstance();          // get the unique instance of the Dashboard
-        listenerRef = (IQueueListener) dashboard;
-        try {
-            listenerRef.registerToQueue(queueRef);              // register the Dashboard to the queue
-            listenerRef = Logger.getDefaultLogger();            // create the Logger for the Dashboard
-            listenerRef.registerToQueue(queueRef);              // register the dashboard Logger to the queue
-            queueRef = null;
-        } catch(QueueListenerException e) {
-            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
-        }
-
-// ========================================================================================================
-
 //                                      FORMATTER REPOSITORY SETUP
 
 // ========================================================================================================
         FormatterRepo formatterRepo = FormatterRepo.getInstance();      // get the instance of FormatterRepo
 
-        Formatter schemeRef;    // create a reference variable for the Formatter scheme
-        Logger loggerRef;        // create a reference variable for the Logger
+        Formatter schemeRef;            // create a reference variable for the Formatter scheme
+        Logger loggerRef;               // create a reference variable for the Logger
+        IQueueListener listenerRef;     // create a reference variable of type QueueListener
+        IQueue queueRef;                // create a reference variable of type IQueue
+        IRecipient outRef;              // create a reference variable of type IRecipient
 
-        try {
-            queueRef = new LogQueue();
-            schemeRef = formatterRepo.newFormatter("mylogformatter", "OPENER: <<<; CLOSER: >>>");
-            loggerRef = Logger.getLoggerWithFormatter(schemeRef);
-            loggerRef.registerToQueue(queueRef);
-            formatterRepo.registerToQueue(queueRef);
-
-        } catch(QueueListenerException e) {
-            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
-            try {
-                formatterRepo.registerToQueue(queueRef);        // register the FormatterRepo to a new Queue
-            } catch(QueueListenerException ex) {
-                ex.printStackTrace();
-            }
+        outRef = new DefaultRecipient();
+        loggerRef = Logger.getLogger(outRef, formatterRepo.getDefaultFormatter());
+        queueRef = new LogQueue();
+        try{
+            formatterRepo.registerQueue(queueRef);        // register the FormatterRepo to a new Queue
+            loggerRef.registerQueue(queueRef);
+        } catch(QueueListenerException ex) {
+            ex.printStackTrace();
         }
 
+        schemeRef = formatterRepo.getDefaultFormatter();
+
         try {
             schemeRef = formatterRepo.newFormatter("mylogformatter", "OPENER: <<<; CLOSER: >>>");
-            loggerRef = Logger.getLoggerWithFormatter(schemeRef);   // define the logger with the formatter scheme
-            loggerRef.registerToQueue(queueRef);
         } catch(QueueListenerException e) {
             System.err.println("QueueListenerException caught in main(): " + e.getMessage());
         }
 
+// ========================================================================================================
+
+//                                          DASHBOARD SETUP
+
+// ========================================================================================================
+
+        IPluggable dashboard = Dashboard.getInstance();          // get the unique instance of the Dashboard
+        listenerRef = (IQueueListener) dashboard;
+        queueRef = new LogQueue();      // create a new Queue for the Dashboard
+
+        try {
+            listenerRef.registerQueue(queueRef);              // register the Dashboard to the queue
+            listenerRef = Logger.getLogger(new DefaultRecipient(), formatterRepo.getDefaultFormatter());
+            listenerRef.registerQueue(queueRef);              // register the dashboard Logger to the queue
+            queueRef = null;
+        } catch(QueueListenerException e) {
+            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
+        }
 
 // ========================================================================================================
 
@@ -82,9 +78,9 @@ public class Demo {
 // ========================================================================================================
 
         queueRef = new LogQueue();      // create a new Queue
-        loggerRef = Logger.getDefaultLogger();
+        loggerRef = Logger.getLogger(new DefaultRecipient(), schemeRef);
         try {
-            loggerRef.registerToQueue(queueRef);
+            loggerRef.registerQueue(queueRef);
         } catch(QueueListenerException e) {
             System.err.println("QueueListenerException caught in main(): " + e.getMessage());
         }
@@ -106,9 +102,9 @@ public class Demo {
 
 // ==========================================================================================
         queueRef = new LogQueue();
-        loggerRef = Logger.getDefaultLogger();
+        loggerRef = Logger.getLogger(new DefaultRecipient(), formatterRepo.getDefaultFormatter());
         try {
-            loggerRef.registerToQueue(queueRef);
+            loggerRef.registerQueue(queueRef);
         } catch(QueueListenerException e) {
             System.err.println("QueueListenerException caught in main(): " + e.getMessage());
         }
@@ -127,9 +123,9 @@ public class Demo {
 
 // ==========================================================================================
         queueRef = new LogQueue();
-        loggerRef = Logger.getDefaultLogger();
+        loggerRef = Logger.getLogger(new DefaultRecipient(), formatterRepo.getDefaultFormatter());
         try {
-            loggerRef.registerToQueue(queueRef);
+            loggerRef.registerQueue(queueRef);
         } catch(QueueListenerException e) {
             System.err.println("QueueListenerException caught in main(): " + e.getMessage());
         }
