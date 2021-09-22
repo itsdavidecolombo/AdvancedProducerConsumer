@@ -1,6 +1,6 @@
 package runnable.peer;
 
-import pluggable.Pluggable;
+import pluggable.IPluggable;
 
 public class Connection {
 
@@ -8,11 +8,11 @@ public class Connection {
         CREATED, OPENED, CLOSED
     }
 
-    public final Pluggable receiver;
+    public final IPluggable receiver;
     public final BasePeer sender;
     private ConnectionState connState;
 
-    public Connection(Pluggable recVar, BasePeer sendVar){
+    public Connection(IPluggable recVar, BasePeer sendVar){
         sender = sendVar;
         receiver = recVar;
         connState = ConnectionState.CREATED;

@@ -173,7 +173,6 @@ public abstract class BasePeer extends RunnableInstance {
     public void stop() {
         super.stop();
         peerNotifier.stop();
-        // TODO: how to stop the Logger thread???
         closeConnection();
     }
 

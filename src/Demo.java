@@ -1,6 +1,6 @@
 
 import queue.IQueue;
-import queue.QueueListener;
+import queue.IQueueListener;
 import queue.QueueListenerException;
 import runnable.logger.Formatter;
 import runnable.logger.FormatterRepo;
@@ -8,7 +8,7 @@ import queue.LogQueue;
 import runnable.logger.Logger;
 import runnable.peer.Connection;
 import pluggable.Dashboard;
-import pluggable.Pluggable;
+import pluggable.IPluggable;
 import runnable.peer.BasePeer;
 import runnable.peer.Producer;
 import runnable.RunnableException;
@@ -24,13 +24,13 @@ public class Demo {
 //                                          DASHBOARD SETUP
 
 // ========================================================================================================
-        QueueListener listenerRef;      // create a reference variable of type QueueListener
+        IQueueListener listenerRef;      // create a reference variable of type QueueListener
         IQueue queueRef;                // create a reference variable of type IQueue
 
         queueRef = new LogQueue();
 
-        Pluggable dashboard = Dashboard.getInstance();          // get the unique instance of the Dashboard
-        listenerRef = (QueueListener) dashboard;
+        IPluggable dashboard = Dashboard.getInstance();          // get the unique instance of the Dashboard
+        listenerRef = (IQueueListener) dashboard;
         try {
             listenerRef.registerToQueue(queueRef);              // register the Dashboard to the queue
             listenerRef = Logger.getDefaultLogger();            // create the Logger for the Dashboard

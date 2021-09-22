@@ -1,7 +1,7 @@
 package pluggable;
 
 import queue.IQueue;
-import queue.QueueListener;
+import queue.IQueueListener;
 import queue.QueueListenerException;
 import runnable.peer.Connection;
 import runnable.peer.Message;
@@ -9,7 +9,7 @@ import runnable.peer.Message;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Dashboard implements Pluggable, QueueListener {
+public class Dashboard implements IPluggable, IQueueListener {
 
     private final List<Connection> connections;
     private IQueue queue = null;

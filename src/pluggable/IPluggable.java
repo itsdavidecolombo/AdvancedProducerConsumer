@@ -3,7 +3,7 @@ package pluggable;
 import runnable.peer.Connection;
 import runnable.peer.Message;
 
-public interface Pluggable {
+public interface IPluggable {
 
     /**
      * Interface for opening a connection with the Dashboard

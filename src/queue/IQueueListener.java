@@ -1,6 +1,6 @@
 package queue;
 
-public interface QueueListener {
+public interface IQueueListener {
 
     /**
      * This method provides the interface for registering to a queue.

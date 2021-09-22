@@ -3,13 +3,13 @@ package runnable.logger;
 import out.DefaultRecipient;
 import out.Recipient;
 import queue.IQueue;
-import queue.QueueListener;
+import queue.IQueueListener;
 import queue.QueueListenerException;
 import runnable.RunnableException;
 import runnable.RunnableInstance;
 import runnable.peer.Message;
 
-public class Logger extends RunnableInstance implements QueueListener {
+public class Logger extends RunnableInstance implements IQueueListener {
 
     private static int ID = 0;
 
