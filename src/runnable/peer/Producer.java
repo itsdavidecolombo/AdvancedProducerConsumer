@@ -7,11 +7,6 @@ public class Producer extends BasePeer {
 
     private final Thread producer;
 
-    /*public Producer(String nameVar) {
-        super(nameVar);
-        producer = new Thread(this, toString());
-    }*/
-
     public Producer(String nameVar, IQueue queueVar){
         super(nameVar, queueVar);
         producer = new Thread(this, toString());

@@ -3,7 +3,6 @@ package runnable.peer;
 import queue.IQueue;
 import runnable.RunnableException;
 import runnable.RunnableInstance;
-import queue.LogQueue;
 
 public abstract class BasePeer extends RunnableInstance {
 
@@ -79,14 +78,6 @@ public abstract class BasePeer extends RunnableInstance {
     private final PeerNotifier peerNotifier;
     protected final IQueue queue;
 
-    /*public BasePeer(String nameVar){
-        name = nameVar;
-        id = ++BasePeer.ID;
-        queue = new LogQueue();     // avoid this because no one can register the Queue
-        peerNotifier = new PeerNotifier(this);
-    }
-     */
-
     public BasePeer(String nameVar, IQueue queueVar){
         name = nameVar;
         id = ++BasePeer.ID;
@@ -110,8 +101,9 @@ public abstract class BasePeer extends RunnableInstance {
             connVar.open();
             conn = connVar;
         } catch(ConnException e) {
-            queue.put("ConnException caught in openConnection() method. Message: " + e.getMessage());
-            // System.err.println("ConnException caught: " + e.getMessage());
+            queue.put("NAME: " + this +
+                     ". ConnException caught in openConnection() method. Message: "
+                    + e.getMessage());
         }
         notify();       // unlock a thread (if any) that is waiting for the connection to be opened!
     }
@@ -124,9 +116,11 @@ public abstract class BasePeer extends RunnableInstance {
     public final void closeConnection(){
         try {
             conn.close();
+            queue.put(Message.CLOSE_MSG);
         } catch(ConnException e) {
-            queue.put("ConnException caught in closeConnection() method. Message: " + e.getMessage());
-            // System.err.println("ConnException caught: " + e.getMessage());
+            queue.put("NAME: " + this +
+                    ". ConnException caught in closeConnection() method. Message: "
+                    + e.getMessage());
         }
     }
 
@@ -138,8 +132,9 @@ public abstract class BasePeer extends RunnableInstance {
         try {
             conn.send(msgVar);
         } catch(ConnException e) {
-            queue.put("ConnException caught in shipMessage() method. Message: " + e.getMessage());
-            // System.err.println("ConnException caught: " + e.getMessage());
+            queue.put("NAME: " + this +
+                    ". ConnException caught in shipMessage() method. Message: "
+                    + e.getMessage());
         }
     }
 

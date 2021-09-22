@@ -7,6 +7,7 @@ import queue.QueueListener;
 import queue.QueueListenerException;
 import runnable.RunnableException;
 import runnable.RunnableInstance;
+import runnable.peer.Message;
 
 public class Logger extends RunnableInstance implements QueueListener {
 
@@ -119,11 +120,12 @@ public class Logger extends RunnableInstance implements QueueListener {
         out.write(
                 scheme.formatMessage(msgToLog)
         );
+        if(msgToLog.equals(Message.CLOSE_MSG))
+            super.stop();
     }
 
     @Override
     public void runInstance() {
-        System.err.println("<<< STARTING THE LOGGER >>>");
         try {
             if(queue == null)
                 throw new Exception("Error: cannot start the Logger because it is not registered to any LogQueue.");

@@ -3,6 +3,7 @@ package runnable.peer;
 public class Message {
 
     public static final String PING_MSG = "PING";
+    public static final String CLOSE_MSG = "CLOSE";
 
     private static int ID = 0;
 

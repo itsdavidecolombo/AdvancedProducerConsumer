@@ -42,10 +42,9 @@ public class Dashboard implements Pluggable, QueueListener {
      */
     @Override
     public void open(Connection conn) {
-        // System.out.println("<<< Dashboard opens a connection with " + conn.sender.toString() + " >>>");
         connections.add(conn);
         queue.put("NAME: " + this + ". Connection established successfully. " +
-                "TARGET: " + conn.sender.toString());
+                        "TARGET: " + conn.sender.toString());
     }
 
     /**
@@ -54,10 +53,9 @@ public class Dashboard implements Pluggable, QueueListener {
      */
     @Override
     public void close(Connection conn) {
-        // System.out.println("<<< Dashboard closes a connection with " + conn.sender.toString() + " >>>");
         connections.remove(conn);
         queue.put("NAME: " + this + ". Connection closed successfully. " +
-                "TARGET: " + conn.sender.toString());
+                        "TARGET: " + conn.sender.toString());
     }
 
     /**
@@ -73,10 +71,8 @@ public class Dashboard implements Pluggable, QueueListener {
     }
 
     private void processPingMessage(Message message){
-        // System.out.println("<<< Dashboard received a PING from " + message.getMessageSender() + " >>>");
-        // TODO: define a message scheme
         queue.put("NAME: " + this + ". PING received successfully. " +
-                "TARGET: " + message.getMessageSender());
+                        "TARGET: " + message.getMessageSender());
     }
 
     public String toString(){
