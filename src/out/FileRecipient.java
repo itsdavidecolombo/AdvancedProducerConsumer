@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class FileRecipient implements Recipient {
+public class FileRecipient implements IRecipient {
 
     private enum FileRecipientState{
         CREATED, OPENED, CLOSED

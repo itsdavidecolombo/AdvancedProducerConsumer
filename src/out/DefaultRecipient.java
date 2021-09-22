@@ -1,6 +1,6 @@
 package out;
 
-public class DefaultRecipient implements Recipient {
+public class DefaultRecipient implements IRecipient {
 
     @Override
     public void write(String msg) {

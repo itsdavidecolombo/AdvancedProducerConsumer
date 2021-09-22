@@ -1,6 +1,6 @@
 package out;
 
-public interface Recipient {
+public interface IRecipient {
 
     /**
      * This method is the common interface of a Recipient instance who's

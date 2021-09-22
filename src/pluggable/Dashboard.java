@@ -56,6 +56,8 @@ public class Dashboard implements IPluggable, IQueueListener {
         connections.remove(conn);
         queue.put("NAME: " + this + ". Connection closed successfully. " +
                         "TARGET: " + conn.sender.toString());
+        if(connections.isEmpty())
+            queue.put(Message.CLOSE_MSG);
     }
 
     /**

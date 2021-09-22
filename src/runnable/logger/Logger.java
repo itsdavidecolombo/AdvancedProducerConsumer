@@ -1,7 +1,7 @@
 package runnable.logger;
 
 import out.DefaultRecipient;
-import out.Recipient;
+import out.IRecipient;
 import queue.IQueue;
 import queue.IQueueListener;
 import queue.QueueListenerException;
@@ -14,7 +14,7 @@ public class Logger extends RunnableInstance implements IQueueListener {
     private static int ID = 0;
 
     private final int id;
-    private final Recipient out;        // where the logged events are actually logged
+    private final IRecipient out;        // where the logged events are actually logged
     private final Formatter scheme;     // the scheme to be used to format a log message
     private final Thread logger;
     private IQueue queue = null;
@@ -43,7 +43,7 @@ public class Logger extends RunnableInstance implements IQueueListener {
      * @param schemeVar
      * @return
      */
-    public static Logger getLoggerWithFormatterAndRecipient(Recipient outVar, Formatter schemeVar){
+    public static Logger getLoggerWithFormatterAndRecipient(IRecipient outVar, Formatter schemeVar){
         return new Logger(outVar, schemeVar);
     }
 
@@ -53,7 +53,7 @@ public class Logger extends RunnableInstance implements IQueueListener {
      * @param outVar
      * @param formatterVar
      */
-    private Logger(Recipient outVar, Formatter formatterVar) {
+    private Logger(IRecipient outVar, Formatter formatterVar) {
         id = ++Logger.ID;
         out = outVar;
         scheme = formatterVar;
