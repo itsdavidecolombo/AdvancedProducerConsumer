@@ -1,12 +1,18 @@
 package runnable.logger;
 
+import queue.IQueue;
+import queue.IQueueListener;
+import queue.QueueListenerException;
+import runnable.peer.Message;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormatterRepo {
+public class FormatterRepo implements IQueueListener {
 
     private final List<Formatter> availableFormatterSchemes;
     private final Formatter defaultFormatter;
+    private IQueue queue = null;
 
     private static FormatterRepo theInstance = null;
 
@@ -29,6 +35,24 @@ public class FormatterRepo {
     }
 
     /**
+     * This method puts a message on the LogQueue that tells the Logger to stop.
+     * This method can be called by main() when the FormatterRepo is no longer needed
+     * because all the setup was done.
+     */
+    public void disconnect(){
+        queue.put(Message.CLOSE_MSG);
+    }
+
+    @Override
+    public void registerToQueue(IQueue q) throws QueueListenerException {
+        if(queue != null){
+            String msgExc = this + " is already registered on Queue " + queue;
+            throw  new QueueListenerException(msgExc, QueueListenerException.ExceptionCause.ALREADY_REGISTERED);
+        }
+        queue = q;
+    }
+
+    /**
      * This method creates a new Formatter scheme if and only if no formatter scheme already exists with the
      * specified name.
      * If already exists, an Exception is thrown.
@@ -37,7 +61,9 @@ public class FormatterRepo {
      * @return
      * @throws Exception
      */
-    public Formatter newFormatter(String name, String ... fArgs) {
+    public Formatter newFormatter(String name, String ... fArgs) throws QueueListenerException {
+        isRegisteredToQueue();      // check if the FormatterRepo is registered on a Queue
+
         Formatter newIn = defaultFormatter;
         try {
             for(Formatter av : availableFormatterSchemes)
@@ -45,9 +71,9 @@ public class FormatterRepo {
                     throw new Exception("The name \"" + name + "\" is already in use.");
             newIn = Formatter.make(name, fArgs);
             availableFormatterSchemes.add(newIn);
+            queue.put(this + " added new formatter named: " + newIn);
         } catch(Exception e) {
-            System.err.println("Exception caught in newFormatter():" +
-                    "\nMessage: " + e.getMessage());
+            queue.put(this + " caught Exception in newFormatter(): " + e.getMessage());
         }
         return newIn;
     }
@@ -59,17 +85,30 @@ public class FormatterRepo {
      * @return
      * @throws Exception
      */
-    public Formatter getFormatterByName(String nameVar) {
+    public Formatter getFormatterByName(String nameVar) throws QueueListenerException {
+        isRegisteredToQueue();      // check: if it fails, throws and exception
+
         try {
             for(Formatter av : availableFormatterSchemes)
                 if(av.equals(nameVar))
                     return av;
             throw new Exception("No Formatter found with name \"" + nameVar + "\"");
         } catch(Exception e) {
-            System.err.println("Exception caught in getFormatterByName():" +
-                    "\nMessage: " + e.getMessage());
+            queue.put(this + " caught Exception in getFormatterByName(): " + e.getMessage());
         }
         return defaultFormatter;
+    }
+
+    /**
+     * This method checks if the FormatterRepository is registered on a Queue for logging events and if not
+     * throws QueueListenerException
+     * @throws QueueListenerException
+     */
+    private void isRegisteredToQueue() throws QueueListenerException {
+        if(queue == null) {
+            String msgExc = this + " is not registered to any Queue.";
+            throw new QueueListenerException(msgExc, QueueListenerException.ExceptionCause.NOT_REGISTERED);
+        }
     }
 
     /**
@@ -82,4 +121,6 @@ public class FormatterRepo {
         return defaultFormatter;
     }
 
+    @Override
+    public String toString() { return "@FORMATTER_REPOSITORY"; }
 }

@@ -3,7 +3,7 @@ package queue;
 public interface IQueueListener {
 
     /**
-     * This method provides the interface for registering to a queue.
+     * This method allows the implementer to register to the Queue passed as argument.
      * @param q
      */
     void registerToQueue(IQueue q) throws QueueListenerException;

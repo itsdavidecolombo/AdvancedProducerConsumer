@@ -50,6 +50,7 @@ public class LogQueue implements IQueue {
         return q.remove();
     }
 
+    @Override
     public String toString(){
         return "@LogQueue_" + id;
     }

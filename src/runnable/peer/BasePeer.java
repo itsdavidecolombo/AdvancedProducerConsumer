@@ -27,9 +27,9 @@ public abstract class BasePeer extends RunnableInstance {
                 try {
                     synchronized(this){                         // checking if the thread should be paused
                         while(isPaused()) {
-                            System.out.println("<<< PeerNotifier " + peer + " is paused >>>");
+                            peer.queue.put(this + " is paused");
                             wait();
-                            System.out.println("<<< PeerNotifier " + peer + " is resumed >>>");
+                            peer.queue.put(this + " is resumed");
                         }
                     }
 
@@ -39,7 +39,6 @@ public abstract class BasePeer extends RunnableInstance {
                     peer.shipMessage(msg);          // shipping the message
                 } catch(InterruptedException e) {
                     e.printStackTrace();
-                    // TODO: log event with a runnable.logger
                 }
             }
             System.out.println("<<< PeerNotifier " + peer + " is stopped >>>");
@@ -67,6 +66,8 @@ public abstract class BasePeer extends RunnableInstance {
             }
         }
 
+        @Override
+        public String toString() { return "@PeerNotifier___" + peer; }
     }
 // ===========================================================================
 

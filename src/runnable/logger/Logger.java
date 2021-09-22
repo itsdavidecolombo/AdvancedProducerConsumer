@@ -117,11 +117,11 @@ public class Logger extends RunnableInstance implements IQueueListener {
     }
 
     private void doLog(){
-        out.write(
-                scheme.formatMessage(msgToLog)
-        );
-        if(msgToLog.equals(Message.CLOSE_MSG))
+        if(msgToLog.equals(Message.CLOSE_MSG)) {
             super.stop();
+        }else {
+            out.write(scheme.formatMessage(msgToLog));
+        }
     }
 
     @Override
@@ -131,7 +131,6 @@ public class Logger extends RunnableInstance implements IQueueListener {
                 throw new Exception("Error: cannot start the Logger because it is not registered to any LogQueue.");
             super.runInstance();
             logger.start();
-            System.out.println("STARTING LOGGER");
         } catch(RunnableException e) {
             System.err.println("RunnableException caught in runInstance() of Logger: " + e.getMessage());
         }catch(Exception e){

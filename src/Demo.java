@@ -42,22 +42,49 @@ public class Demo {
 
 // ========================================================================================================
 
-//                                          LOGGER SETUP
+//                                      FORMATTER REPOSITORY SETUP
 
 // ========================================================================================================
+        FormatterRepo formatterRepo = FormatterRepo.getInstance();      // get the instance of FormatterRepo
 
         Formatter schemeRef;    // create a reference variable for the Formatter scheme
         Logger loggerRef;        // create a reference variable for the Logger
 
-        schemeRef = FormatterRepo.getInstance().                // define the formatter scheme
-                newFormatter("mylogformatter",
-                "OPENER: <<<; CLOSER: >>>");
+        try {
+            queueRef = new LogQueue();
+            schemeRef = formatterRepo.newFormatter("mylogformatter", "OPENER: <<<; CLOSER: >>>");
+            loggerRef = Logger.getLoggerWithFormatter(schemeRef);
+            loggerRef.registerToQueue(queueRef);
+            formatterRepo.registerToQueue(queueRef);
 
-        loggerRef = Logger.getLoggerWithFormatter(schemeRef);   // define the logger with the formatter scheme
+        } catch(QueueListenerException e) {
+            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
+            try {
+                formatterRepo.registerToQueue(queueRef);        // register the FormatterRepo to a new Queue
+            } catch(QueueListenerException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        try {
+            schemeRef = formatterRepo.newFormatter("mylogformatter", "OPENER: <<<; CLOSER: >>>");
+            loggerRef = Logger.getLoggerWithFormatter(schemeRef);   // define the logger with the formatter scheme
+            loggerRef.registerToQueue(queueRef);
+        } catch(QueueListenerException e) {
+            System.err.println("QueueListenerException caught in main(): " + e.getMessage());
+        }
+
+
+// ========================================================================================================
+
+//                                              PEERS SETUP
+
+// ========================================================================================================
 
         queueRef = new LogQueue();      // create a new Queue
+        loggerRef = Logger.getDefaultLogger();
         try {
-            loggerRef.registerToQueue(queueRef);         // register the Logger to the Queue
+            loggerRef.registerToQueue(queueRef);
         } catch(QueueListenerException e) {
             System.err.println("QueueListenerException caught in main(): " + e.getMessage());
         }
@@ -143,6 +170,7 @@ public class Demo {
             e.printStackTrace();
         }
 
+        formatterRepo.disconnect();     // disconnect the FormatterRepo when it's job is finished
     }
 }
 

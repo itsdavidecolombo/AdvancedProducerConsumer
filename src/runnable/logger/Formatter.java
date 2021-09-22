@@ -1,8 +1,5 @@
 package runnable.logger;
 
-
-import java.util.StringTokenizer;
-
 public class Formatter {
 
     private final String allowedSymbols = "$%&/=?^!_-.<>";
@@ -16,7 +13,6 @@ public class Formatter {
     private final int id;
     private final String name;
     private final String[] formatterSymbols;
-    private final StringBuilder sb;
 
     /**
      * Method that returns the default formatter scheme.
@@ -47,7 +43,6 @@ public class Formatter {
         name = nameVar;
         formatterSymbols = fArgs;
         id = ++Formatter.ID;
-        sb = new StringBuilder();
     }
 
     /**
@@ -57,24 +52,6 @@ public class Formatter {
      */
     public String formatMessage(String msgContent){
         return msgContent;
-    }
-
-    /*
-    private String parseKeyValuePair(String scheme){
-        String[] tokens = scheme.split(";");
-        String[] keyValuePair;
-        String key, value;
-        for(String tok : tokens){
-            keyValuePair = tok.split(":");
-            key = keyValuePair[0];
-            value = keyValuePair[1];
-        }
-        return "";
-    }
-     */
-
-    private void clearStringBuilder(){
-        sb.setLength(0);
     }
 
     /**
@@ -88,15 +65,7 @@ public class Formatter {
 
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("Name: ").append(name).append("\n");
-        for(int i = 0; i < formatterSymbols.length; i++)
-            sb.append("Symbol").
-                    append(i).
-                    append(": ").
-                    append(formatterSymbols[i]).
-                    append("\n");
-        return sb.toString();
+        return "<<<" + name + ">>>";
     }
 
 }

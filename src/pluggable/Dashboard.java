@@ -77,6 +77,7 @@ public class Dashboard implements IPluggable, IQueueListener {
                         "TARGET: " + message.getMessageSender());
     }
 
+    @Override
     public String toString(){
         return "@DASHBOARD";
     }
