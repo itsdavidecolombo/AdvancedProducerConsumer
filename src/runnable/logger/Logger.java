@@ -57,7 +57,6 @@ public class Logger extends RunnableInstance implements QueueListener {
         out = outVar;
         scheme = formatterVar;
         logger = new Thread(this);
-        runInstance();
     }
 
     /**
@@ -70,7 +69,6 @@ public class Logger extends RunnableInstance implements QueueListener {
         out = new DefaultRecipient();
         scheme = schemeVar;
         logger = new Thread(this);
-        runInstance();
     }
 
     /**
@@ -82,7 +80,6 @@ public class Logger extends RunnableInstance implements QueueListener {
         out = new DefaultRecipient();
         scheme = FormatterRepo.getInstance().getDefaultFormatter();
         logger = new Thread(this);
-        runInstance();
     }
 
     @Override
@@ -92,6 +89,7 @@ public class Logger extends RunnableInstance implements QueueListener {
             throw new QueueListenerException(msg, QueueListenerException.ExceptionCause.ALREADY_REGISTERED);
         }
         queue = q;
+        runInstance();
     }
 
 // ===============================================================================================
