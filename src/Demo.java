@@ -68,7 +68,6 @@ public class Demo {
             outRef = new FileRecipient("dashboard", ".txt", false);
             listenerRef = Logger.getLogger(outRef, formatterRepo.getDefaultFormatter());
             listenerRef.registerQueue(queueRef);              // register the dashboard Logger to the queue
-            queueRef = null;
         } catch(QueueListenerException e) {
             System.err.println("QueueListenerException caught in main(): " + e.getMessage());
         }

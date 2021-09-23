@@ -1,9 +1,12 @@
 package repository;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Formatter {
 
     private final String allowedSymbols = "$%&/=?^!_-.<>";
-
+    private final String FIELD_SEPARATOR = "\t";
     private static final String DEFAULT_NAME = "DEFAULT";
     private static final String DEFAULT_IDTAG = "_";
     private static final String DEFAULT_NAMETAG = "@";
@@ -13,6 +16,7 @@ public class Formatter {
     private final int id;
     private final String name;
     private final String[] formatterSymbols;
+    private final DateTimeFormatter dtf;
 
     /**
      * Method that returns the default formatter scheme.
@@ -43,6 +47,7 @@ public class Formatter {
         name = nameVar;
         formatterSymbols = fArgs;
         id = ++Formatter.ID;
+        dtf = DateTimeFormatter.ofPattern("EE dd/LL/yyyy HH:mm:ss");
     }
 
     /**
@@ -51,7 +56,10 @@ public class Formatter {
      * @return
      */
     public String formatMessage(String msgContent){
-        return msgContent;
+        String formattedMsg;
+        formattedMsg = dtf.format(LocalDateTime.now());
+        formattedMsg += FIELD_SEPARATOR + msgContent;
+        return formattedMsg;
     }
 
     /**
