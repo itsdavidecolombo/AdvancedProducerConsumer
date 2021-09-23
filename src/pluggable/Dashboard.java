@@ -43,7 +43,9 @@ public class Dashboard implements IPluggable, IQueueListener {
     @Override
     public void open(Connection conn) {
         connections.add(conn);
-        queue.put(this + ": connection established successfully with " + conn.sender.toString());
+        queue.put(">>>CONNECTION OPENED SUCCESSFULLY<<<" +
+                "\tPLUGGABLE: " + this +
+                "\tPEER: " + conn.sender.toString());
     }
 
     /**
@@ -53,7 +55,9 @@ public class Dashboard implements IPluggable, IQueueListener {
     @Override
     public void close(Connection conn) {
         connections.remove(conn);
-        queue.put(this + ": connection closed successfully with " + conn.sender.toString());
+        queue.put(">>>CONNECTION CLOSED SUCCESSFULLY<<<" +
+                "\tPLUGGABLE: " + this +
+                "\tPEER: " + conn.sender.toString());
         if(connections.isEmpty())
             queue.put(Message.CLOSE_MSG);
     }
@@ -71,8 +75,10 @@ public class Dashboard implements IPluggable, IQueueListener {
     }
 
     private void processPingMessage(Message message){
-        queue.put("NAME: " + this + ". PING received successfully. " +
-                        "TARGET: " + message.getMessageSender());
+        queue.put(">>>" + message.getMessageContent() + "<<<" +
+                "\tCODE: " + message.getMessageCode() +
+                "\tRECEIVER: " + this +
+                "\tSENDER: " + message.getMessageSender());
     }
 
     @Override

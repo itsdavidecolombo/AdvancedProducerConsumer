@@ -23,9 +23,9 @@ public class Producer extends BasePeer {
 
                     synchronized(this){
                         while(isPaused()) {
-                            queue.put("NAME: " + this + ". STATUS: paused.");
+                            queue.put(this + "\tSTATUS: PAUSED");
                             wait();
-                            queue.put("NAME: " + this + ". STATUS: resumed.");
+                            queue.put(this + "\tSTATUS: RESUMED");
                         }
                     }
                 } catch(InterruptedException e) {
@@ -33,7 +33,7 @@ public class Producer extends BasePeer {
                 }
             }
         }
-        queue.put("NAME: " + this + ". STATUS: stopped.");
+        queue.put(this + "\tSTATUS: STOPPED");
     }
 
     /**
@@ -52,11 +52,9 @@ public class Producer extends BasePeer {
             super.runInstance();        // run the PeerNotifier thread
             this.producer.start();      // run the producer thread
         } catch(InterruptedException e){
-            queue.put("NAME: " + this +
-                    ". InterruptedException caught in runInstance(). " + e.getMessage());
+            queue.put(this + "\tInterruptedException caught in runInstance(): " + e.getMessage());
         }catch(RunnableException e) {
-            queue.put("NAME: " + this +
-                    ". RunnableException caught in runInstance(). " + e.getMessage());
+            queue.put(this + "\tRunnableException caught in runInstance(): " + e.getMessage());
         }
     }
 
@@ -66,8 +64,7 @@ public class Producer extends BasePeer {
             super.resume();     // resume the PeerNotifier thread
             notify();           // wake up the producer thread when pausing
         } catch(RunnableException e) {
-            queue.put("NAME: " + this +
-                    ". RunnableException caught in resume(). " + e.getMessage());
+            queue.put(this + "\tRunnableException caught in resume(): " + e.getMessage());
             super.stop();
         }
     }

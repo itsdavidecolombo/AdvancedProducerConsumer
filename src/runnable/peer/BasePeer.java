@@ -27,9 +27,9 @@ public abstract class BasePeer extends RunnableInstance {
                 try {
                     synchronized(this){                         // checking if the thread should be paused
                         while(isPaused()) {
-                            peer.queue.put(this + " is paused");
+                            peer.queue.put(this + "\tSTATUS: PAUSED");
                             wait();
-                            peer.queue.put(this + " is resumed");
+                            peer.queue.put(this + "\tSTATUS: RESUMED");
                         }
                     }
 
@@ -67,7 +67,7 @@ public abstract class BasePeer extends RunnableInstance {
         }
 
         @Override
-        public String toString() { return "@PeerNotifier___" + peer; }
+        public String toString() { return "@PEER_NOTIFIER"; }
     }
 // ===========================================================================
 
@@ -98,13 +98,14 @@ public abstract class BasePeer extends RunnableInstance {
     public synchronized final void openConnection(Connection connVar){
         try {
             if(conn != null)
-                throw new ConnException("Peer " + this + " is already connected.");
+                throw new ConnException("ALREADY CONNECTED");
             connVar.open();
             conn = connVar;
+            queue.put(">>>CONNECTION OPENED SUCCESSFULLY<<<" +
+                    "\tPEER: " + this +
+                    "\tPLUGGABLE: " + conn.receiver);
         } catch(ConnException e) {
-            queue.put("NAME: " + this +
-                     ". ConnException caught in openConnection() method. Message: "
-                    + e.getMessage());
+            queue.put(this + "\tConnException caught in openConnection(): " + e.getMessage());
         }
         notify();       // unlock a thread (if any) that is waiting for the connection to be opened!
     }
@@ -117,11 +118,12 @@ public abstract class BasePeer extends RunnableInstance {
     public final void closeConnection(){
         try {
             conn.close();
+            queue.put(">>>CONNECTION CLOSED SUCCESSFULLY<<<" +
+                    "\tPEER: " + this +
+                    "\tPLUGGABLE: " + conn.receiver);
             queue.put(Message.CLOSE_MSG);
         } catch(ConnException e) {
-            queue.put("NAME: " + this +
-                    ". ConnException caught in closeConnection() method. Message: "
-                    + e.getMessage());
+            queue.put(this + "\tConnException caught in closeConnection(): " + e.getMessage());
         }
     }
 
@@ -132,10 +134,12 @@ public abstract class BasePeer extends RunnableInstance {
     public final void shipMessage(Message msgVar){
         try {
             conn.send(msgVar);
+            queue.put(">>>" + msgVar.getMessageContent() + "<<<" +
+                    "\tCODE: " + msgVar.getMessageCode() +
+                    "\tSENDER: " + this +
+                    "\tRECEIVER: " + conn.receiver);
         } catch(ConnException e) {
-            queue.put("NAME: " + this +
-                    ". ConnException caught in shipMessage() method. Message: "
-                    + e.getMessage());
+            queue.put(this + "\tConnException caught in shipMessage(): " + e.getMessage());
         }
     }
 

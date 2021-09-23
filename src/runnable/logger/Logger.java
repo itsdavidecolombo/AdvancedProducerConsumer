@@ -79,9 +79,10 @@ public class Logger extends RunnableInstance implements IQueueListener {
     }
 
     private void processLogMessage(){
-        out.write(scheme.formatMessage(msgToLog));
         if(msgToLog.equals(Message.CLOSE_MSG))
             super.stop();
+        else
+            out.write(scheme.formatMessage(msgToLog));
     }
 
     @Override
